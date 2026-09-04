@@ -1,5 +1,5 @@
-# WRITEUP.md dirakit lokal oleh perakit, jangan ikut ke-commit
-WRITEUP.md
+# cuma WRITEUP.md gabungan di ROOT yang di-ignore (bukan writeup per-soal)
+/WRITEUP.md
 __pycache__/
 *.pyc
 .DS_Store
