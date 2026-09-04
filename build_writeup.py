@@ -249,31 +249,42 @@ def sync_once(root, args, quiet=False):
     return len(entries)
 
 
+def commit_push_all(root, msg):
+    """Stage SEMUA perubahan (writeup mentah + gambar + WRITEUP.md), commit, push
+    dengan retry. return True kalau ada yang di-commit."""
+    sh(["git", "add", "-A"], cwd=root, check=False)
+    if sh(["git", "diff", "--cached", "--quiet"], cwd=root, check=False).returncode == 0:
+        return False                              # tidak ada yang berubah
+    sh(["git", "commit", "-m", msg], cwd=root, check=False)
+    for _ in range(3):
+        if sh(["git", "push"], cwd=root, check=False).returncode == 0:
+            return True
+        sh(["git", "pull", "--rebase", "--autostash"], cwd=root, check=False)
+    return True
+
+
 def watch_loop(root, args):
     br = current_branch(root)
     print(f"[*] MODE WATCH aktif di branch '{br}', cek tiap {args.interval}s. "
           f"Ctrl+C untuk berhenti.")
+    print("    (taruh/edit file writeup di folder anggota -> otomatis push + rakit)")
     first = True
     while True:
         try:
             if not first:
                 time.sleep(args.interval)
             first = False
-            # 1) tarik update dari origin kalau ada (writeup dari anggota lain)
+            # 1) tarik update dari anggota lain (autostash lindungi kerjaan lokal)
             sh(["git", "fetch", "origin", br], cwd=root, check=False)
-            if git_head(root) != git_head(root, f"origin/{br}"):
-                p = sh(["git", "pull", "--ff-only"], cwd=root, check=False)
-                if p.returncode != 0:
-                    sh(["git", "checkout", "--", "."], cwd=root, check=False)
-                    sh(["git", "pull", "--rebase"], cwd=root, check=False)
-            # 2) selalu rakit ulang; push HANYA kalau isi WRITEUP.md berubah
+            sh(["git", "pull", "--rebase", "--autostash"], cwd=root, check=False)
+            # 2) rakit ulang WRITEUP.md dari semua writeup yang ada
             members = detect_members(root, args.members)
-            entries = build(root, args.output, members, args.event,
-                            not args.no_pagebreak) if members else None
-            if entries and push_output(root, args.output):
-                print(f"\n[+] {args.output} diperbarui ({len(entries)} challenge) -> pushed:")
-                for e in entries:
-                    print(f"    {e['n']:>2}. {e['title']:<28} [{e['member']}]")
+            if members:
+                build(root, args.output, members, args.event, not args.no_pagebreak)
+            # 3) commit + push SEMUA (writeup mentah yang baru ditaruh + WRITEUP.md)
+            if commit_push_all(root, "auto-sync: writeup + rakit WRITEUP.md"):
+                n = len(find_writeups(root, members)) if members else 0
+                print(f"\n[+] tersinkron & ter-push ({n} challenge di {args.output}).")
             else:
                 print(".", end="", flush=True)  # heartbeat: tidak ada perubahan
         except KeyboardInterrupt:

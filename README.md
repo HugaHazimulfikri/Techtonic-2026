@@ -77,20 +77,33 @@ python3 build_writeup.py --pull --push
 Itu bakal: `git pull` -> scan semua folder anggota -> rakit `WRITEUP.md` (daftar isi + semua
 soal, path gambar dibetulin otomatis) -> `git commit` + `git push`.
 
-## 🔁 Mode watch (jalan sekali, auto terus)
+## 😴 Mode auto (jalan sekali, nggak usah ngetik lagi)
 
-Nggak mau jalanin manual tiap kali? Cukup **satu orang** jalanin ini sekali, biarin nongkrong:
+Males ngetik perintah tiap kali? Jalanin **watch sekali**, terus tinggal **taruh/edit file
+writeup di folder** — sisanya otomatis. Ada 2 peran:
+
+**Anggota** (tiap orang, di clone masing-masing) — auto-push writeup begitu disimpan:
+
+```bash
+./simpan.sh --watch
+```
+Habis itu tinggal bikin/edit file writeup di folder kamu; tiap ada perubahan, otomatis
+`add -> commit -> pull --rebase -> push`. Nggak usah sentuh git/`simpan.sh` lagi.
+
+**Perakit** (cukup **satu orang**) — auto-rakit `WRITEUP.md` gabungan:
 
 ```bash
 python3 build_writeup.py --watch
 ```
+Tiap ada writeup baru masuk (dari siapa pun), otomatis `pull` -> rakit ulang `WRITEUP.md` ->
+`push`. Writeup mentah yang ditaruh lokal di mesin si perakit juga ikut ke-push otomatis.
 
-Dia bakal cek repo tiap 20 detik. **Tiap ada anggota push writeup baru**, dia otomatis
-`git pull` -> rakit ulang `WRITEUP.md` -> `git push`. Ctrl+C untuk berhenti.
-Ganti interval kalau perlu: `--watch --interval 10` (cek tiap 10 detik).
+Interval default 20 detik (build) / 15 detik (simpan); ganti dengan `--interval N` /
+`--watch N`. Ctrl+C untuk berhenti. Cukup **satu orang** yang jadi perakit biar `WRITEUP.md`
+nggak rebutan.
 
-> Cukup **satu orang** yang jalanin `--watch` (si "perakit"). Anggota lain tinggal push
-> folder writeup masing-masing seperti biasa — `WRITEUP.md` diurus si perakit.
+> Ringkas: **anggota** `./simpan.sh --watch` · **perakit** `python3 build_writeup.py --watch`.
+> Habis itu semua orang tinggal nulis writeup, nggak ngetik perintah lagi.
 
 ## 🛠️ Opsi tool
 
