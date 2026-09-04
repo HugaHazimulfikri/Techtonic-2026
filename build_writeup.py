@@ -9,35 +9,32 @@ Struktur repo yang diharapkan (tiap anggota punya folder sendiri):
     <anggota>/<challenge>/img/*.png           <- screenshot (opsional, ditulis "img/xxx.png")
     <anggota>/<challenge>/<solver, file soal> <- opsional
 
-Contoh:
-    nexsus404/BMN/WRITEUP.md
-    nexsus404/BMN/img/01-soal.png
-    sanzxcte/Ecliprime/WRITEUP.md
-
 Header dokumen diambil dari _template/header.md (judul + banner + tabel Team).
-Edit file itu tiap event. Kalau tidak ada, dipakai judul default (--event).
-
-Metadata opsional di baris paling atas WRITEUP.md (biar tabel Daftar Isi rapi):
-    <!-- category: web | points: 498 -->
+Metadata opsional di baris atas WRITEUP.md: <!-- category: web | points: 498 -->
 
 Pemakaian:
-    python3 build_writeup.py                 # rakit folder saat ini -> WRITEUP.md
-    python3 build_writeup.py --pull          # git pull dulu, baru rakit
+    python3 build_writeup.py                 # rakit sekali -> WRITEUP.md
     python3 build_writeup.py --push          # rakit lalu commit + push
-    python3 build_writeup.py --pull --push   # sinkron penuh
-    python3 build_writeup.py -o GABUNGAN.md  # nama output lain
-    python3 build_writeup.py --event "Techtonic-2026"        # judul kalau tak ada header.md
-    python3 build_writeup.py --members sanzxcte nexsus404 x0r # atur urutan anggota
-    python3 build_writeup.py --no-pagebreak                   # tanpa page-break PDF
+    python3 build_writeup.py --pull --push   # sinkron penuh sekali jalan
 
-Clone dari nol lalu rakit:
-    python3 build_writeup.py --repo https://github.com/USER/REPO.git --into REPO
+    # MODE WATCH: jalanin SEKALI, dia nongkrong; tiap ada push baru dari temen,
+    # otomatis pull -> rakit ulang -> push. Ctrl+C untuk berhenti.
+    python3 build_writeup.py --watch                 # cek tiap 20 detik
+    python3 build_writeup.py --watch --interval 10   # cek tiap 10 detik
+
+    # lain-lain
+    python3 build_writeup.py -o GABUNGAN.md
+    python3 build_writeup.py --event "Techtonic-2026"
+    python3 build_writeup.py --members sanzxcte nexsus404 x0r
+    python3 build_writeup.py --no-pagebreak
+    python3 build_writeup.py --repo https://github.com/USER/REPO.git --into REPO --watch
 """
 import argparse
 import os
 import re
 import subprocess
 import sys
+import time
 
 IMG_MD = re.compile(r"(!\[[^\]]*\]\()\s*([^)\s]+)([^)]*\))")
 IMG_HTML = re.compile(r"""(<img\b[^>]*?\bsrc=["'])([^"']+)(["'])""", re.I)
@@ -58,7 +55,6 @@ def is_external(p):
 
 
 def rewrite_paths(text, prefix):
-    """Tambahkan prefix (folder writeup) ke path gambar relatif."""
     def fix(m):
         pre, path, post = m.group(1), m.group(2), m.group(3)
         p = path.strip()
@@ -96,7 +92,6 @@ def parse_meta(text, fallback_title):
 
 
 def strip_body(text):
-    """Buang komentar metadata + heading judul pertama (diganti heading rakitan)."""
     text = re.sub(r"<!--.*?-->", "", text, count=1, flags=re.S)
     out, dropped = [], False
     for ln in text.splitlines():
@@ -150,8 +145,6 @@ def find_writeups(root, members):
 def build(root, out_name, members, event, pagebreak=True):
     items = find_writeups(root, members)
     if not items:
-        print("[-] Tidak ada writeup ditemukan. Pastikan struktur "
-              "<anggota>/<challenge>/WRITEUP.md", file=sys.stderr)
         return False
 
     entries = []
@@ -166,8 +159,6 @@ def build(root, out_name, members, event, pagebreak=True):
 
     pb = ("\n" + PAGEBREAK + "\n") if pagebreak else ""
     out = []
-
-    # --- header dari template, atau default ---
     hpath = os.path.join(root, HEADER_FILE)
     if os.path.isfile(hpath):
         with open(hpath, encoding="utf-8") as f:
@@ -176,7 +167,6 @@ def build(root, out_name, members, event, pagebreak=True):
         out.append(f"# Writeup {event}")
     out.append(pb)
 
-    # --- Daftar Isi Challenge ---
     out.append("## Daftar Isi Challenge\n")
     out.append("| #   | Challenge | Kategori | Points | Solver |")
     out.append("| --- | --------- | -------- | ------ | ------ |")
@@ -185,7 +175,6 @@ def build(root, out_name, members, event, pagebreak=True):
                    f"`{e['cat'] or '-'}` | `{e['pts'] or '-'}` | {e['member']} |")
     out.append(pb)
 
-    # --- tiap challenge ---
     for e in entries:
         out.append(f"# {e['head']}")
         meta = " · ".join(x for x in (
@@ -197,15 +186,79 @@ def build(root, out_name, members, event, pagebreak=True):
         out.append(e["body"])
         out.append(pb)
 
-    text = "\n".join(p for p in out if p is not None)
-    text = re.sub(r"\n{3,}", "\n\n", text).rstrip() + "\n"
+    text = re.sub(r"\n{3,}", "\n\n", "\n".join(out)).rstrip() + "\n"
     with open(os.path.join(root, out_name), "w", encoding="utf-8") as f:
         f.write(text)
+    return entries
 
-    print(f"[+] {out_name} dibuat — {len(entries)} challenge:")
+
+# ------------------------- git helpers -------------------------
+def git_head(root, ref="HEAD"):
+    return sh(["git", "rev-parse", ref], cwd=root, check=False).stdout.strip()
+
+
+def current_branch(root):
+    b = sh(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=root, check=False).stdout.strip()
+    return b or "main"
+
+
+def push_output(root, out_name):
+    """commit + push out_name; return True kalau ada perubahan yang dipush."""
+    sh(["git", "add", out_name], cwd=root)
+    if not sh(["git", "status", "--porcelain", out_name], cwd=root).stdout.strip():
+        return False
+    sh(["git", "commit", "-m", f"build: rakit {out_name} otomatis"], cwd=root)
+    r = sh(["git", "push"], cwd=root, check=False)
+    if r.returncode != 0:                      # kalau ketolak, sinkron lalu coba lagi
+        sh(["git", "pull", "--rebase"], cwd=root, check=False)
+        r = sh(["git", "push"], cwd=root, check=False)
+    return r.returncode == 0
+
+
+def sync_once(root, args, quiet=False):
+    """detect -> build -> (push). return jumlah challenge, atau -1 kalau kosong."""
+    members = detect_members(root, args.members)
+    if not members:
+        if not quiet:
+            print("[-] belum ada writeup di folder anggota manapun.")
+        return -1
+    entries = build(root, args.output, members, args.event, not args.no_pagebreak)
+    if not entries:
+        return -1
+    print(f"[*] Anggota: {', '.join(members)}")
+    print(f"[+] {args.output} — {len(entries)} challenge:")
     for e in entries:
         print(f"    {e['n']:>2}. {e['title']:<28} [{e['member']}]")
-    return True
+    if args.push or args.watch:
+        if push_output(root, args.output):
+            print("[+] pushed.")
+        else:
+            print("[*] tidak ada perubahan pada output, skip push.")
+    return len(entries)
+
+
+def watch_loop(root, args):
+    br = current_branch(root)
+    print(f"[*] MODE WATCH aktif di branch '{br}', cek tiap {args.interval}s. "
+          f"Ctrl+C untuk berhenti.")
+    sync_once(root, args)                       # rakit awal
+    while True:
+        try:
+            time.sleep(args.interval)
+            sh(["git", "fetch", "origin", br], cwd=root, check=False)
+            local, remote = git_head(root), git_head(root, f"origin/{br}")
+            if remote and remote != local:
+                print(f"\n[*] update baru terdeteksi di origin/{br}, sinkron...")
+                p = sh(["git", "pull", "--ff-only"], cwd=root, check=False)
+                if p.returncode != 0:
+                    sh(["git", "checkout", "--", "."], cwd=root, check=False)
+                    sh(["git", "pull", "--rebase"], cwd=root, check=False)
+                sync_once(root, args)
+            else:
+                print(".", end="", flush=True)  # heartbeat, biar keliatan hidup
+        except KeyboardInterrupt:
+            print("\n[*] watch dihentikan.")
+            break
 
 
 def main():
@@ -213,12 +266,14 @@ def main():
     ap.add_argument("-o", "--output", default="WRITEUP.md")
     ap.add_argument("--members", nargs="*")
     ap.add_argument("--dir", default=".")
-    ap.add_argument("--event", default=DEFAULT_EVENT, help="judul kalau _template/header.md tak ada")
+    ap.add_argument("--event", default=DEFAULT_EVENT)
     ap.add_argument("--repo")
     ap.add_argument("--into")
     ap.add_argument("--pull", action="store_true")
     ap.add_argument("--push", action="store_true")
-    ap.add_argument("--no-pagebreak", action="store_true", help="tanpa page-break PDF")
+    ap.add_argument("--watch", action="store_true", help="nongkrong; auto rakit+push tiap ada push baru")
+    ap.add_argument("--interval", type=int, default=20, help="detik antar cek di mode watch (default 20)")
+    ap.add_argument("--no-pagebreak", action="store_true")
     args = ap.parse_args()
 
     root = args.dir
@@ -234,24 +289,12 @@ def main():
         print("[*] git pull...")
         sh(["git", "pull", "--ff-only"], cwd=root, check=False)
 
-    members = detect_members(root, args.members)
-    if not members:
-        print("[-] Tidak ada folder anggota terdeteksi.", file=sys.stderr)
-        sys.exit(1)
-    print(f"[*] Anggota: {', '.join(members)}")
-
-    if not build(root, args.output, members, args.event, not args.no_pagebreak):
-        sys.exit(1)
-
-    if args.push:
-        sh(["git", "add", args.output], cwd=root)
-        if not sh(["git", "status", "--porcelain", args.output], cwd=root).stdout.strip():
-            print("[*] Tidak ada perubahan, skip commit.")
-            return
-        sh(["git", "commit", "-m", f"build: rakit {args.output} otomatis"], cwd=root)
-        r = sh(["git", "push"], cwd=root, check=False)
-        msg = (r.stderr or r.stdout).strip().splitlines()
-        print("[+] push:", msg[-1] if msg else "ok")
+    if args.watch:
+        watch_loop(root, args)
+    else:
+        n = sync_once(root, args)
+        if n < 0:
+            sys.exit(1)
 
 
 if __name__ == "__main__":

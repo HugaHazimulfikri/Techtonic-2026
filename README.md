@@ -55,6 +55,21 @@ python3 build_writeup.py --pull --push
 Itu bakal: `git pull` -> scan semua folder anggota -> rakit `WRITEUP.md` (daftar isi + semua
 soal, path gambar dibetulin otomatis) -> `git commit` + `git push`.
 
+## 🔁 Mode watch (jalan sekali, auto terus)
+
+Nggak mau jalanin manual tiap kali? Cukup **satu orang** jalanin ini sekali, biarin nongkrong:
+
+```bash
+python3 build_writeup.py --watch
+```
+
+Dia bakal cek repo tiap 20 detik. **Tiap ada anggota push writeup baru**, dia otomatis
+`git pull` -> rakit ulang `WRITEUP.md` -> `git push`. Ctrl+C untuk berhenti.
+Ganti interval kalau perlu: `--watch --interval 10` (cek tiap 10 detik).
+
+> Cukup **satu orang** yang jalanin `--watch` (si "perakit"). Anggota lain tinggal push
+> folder writeup masing-masing seperti biasa — `WRITEUP.md` diurus si perakit.
+
 ## 🛠️ Opsi tool
 
 ```bash
