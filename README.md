@@ -69,4 +69,16 @@ python3 build_writeup.py --repo https://github.com/HugaHazimulfikri/Techtonic-20
 ```
 
 Cuma butuh **Python 3** (tanpa dependensi luar) + **git**.
-```
+
+## 🎨 Template & tampilan
+
+Header dokumen hasil gabungan (judul + banner + tabel Team) diambil dari
+[`_template/header.md`](_template/header.md). Edit file itu tiap event:
+
+- ganti judul `# Writeup Techtonic-2026`
+- ganti banner `_template/banner.png` dengan banner event
+- isi skor tiap anggota setelah lomba selesai
+
+Di bawah header, tool otomatis menambahkan **Daftar Isi Challenge** + semua writeup, dengan
+page-break (`<div>`) di antara bagian biar rapi kalau di-export ke PDF (pakai `--no-pagebreak`
+untuk mematikannya).

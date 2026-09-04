@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-build_writeup.py — gabungkan semua writeup per anggota jadi satu WRITEUP.md.
+build_writeup.py — gabungkan semua writeup per anggota jadi satu WRITEUP.md,
+mengikuti gaya template (banner + tabel Team + Daftar Isi Challenge + tiap soal).
 
 Struktur repo yang diharapkan (tiap anggota punya folder sendiri):
 
     <anggota>/<challenge>/WRITEUP.md          <- writeup (wajib)
-    <anggota>/<challenge>/img/*.png           <- screenshot (opsional)
+    <anggota>/<challenge>/img/*.png           <- screenshot (opsional, ditulis "img/xxx.png")
     <anggota>/<challenge>/<solver, file soal> <- opsional
 
 Contoh:
@@ -13,16 +14,21 @@ Contoh:
     nexsus404/BMN/img/01-soal.png
     sanzxcte/Ecliprime/WRITEUP.md
 
-Metadata opsional di baris paling atas WRITEUP.md (biar tabel daftar isi rapi):
+Header dokumen diambil dari _template/header.md (judul + banner + tabel Team).
+Edit file itu tiap event. Kalau tidak ada, dipakai judul default (--event).
+
+Metadata opsional di baris paling atas WRITEUP.md (biar tabel Daftar Isi rapi):
     <!-- category: web | points: 498 -->
 
 Pemakaian:
     python3 build_writeup.py                 # rakit folder saat ini -> WRITEUP.md
     python3 build_writeup.py --pull          # git pull dulu, baru rakit
-    python3 build_writeup.py --push          # rakit lalu commit + push otomatis
-    python3 build_writeup.py --pull --push   # sinkron penuh: pull, rakit, push
+    python3 build_writeup.py --push          # rakit lalu commit + push
+    python3 build_writeup.py --pull --push   # sinkron penuh
     python3 build_writeup.py -o GABUNGAN.md  # nama output lain
-    python3 build_writeup.py --members sanzxcte nexsus404 x0r   # batasi/urutkan anggota
+    python3 build_writeup.py --event "Techtonic-2026"        # judul kalau tak ada header.md
+    python3 build_writeup.py --members sanzxcte nexsus404 x0r # atur urutan anggota
+    python3 build_writeup.py --no-pagebreak                   # tanpa page-break PDF
 
 Clone dari nol lalu rakit:
     python3 build_writeup.py --repo https://github.com/USER/REPO.git --into REPO
@@ -32,18 +38,19 @@ import os
 import re
 import subprocess
 import sys
-from datetime import date
 
-# --- regex untuk menemukan path gambar / link relatif ---------------------
 IMG_MD = re.compile(r"(!\[[^\]]*\]\()\s*([^)\s]+)([^)]*\))")
 IMG_HTML = re.compile(r"""(<img\b[^>]*?\bsrc=["'])([^"']+)(["'])""", re.I)
 
-SKIP_DIRS = {".git", ".github", "img", "images", "assets", "node_modules", "__pycache__"}
+SKIP_DIRS = {".git", ".github", "img", "images", "assets", "node_modules",
+             "__pycache__", "_template"}
+DEFAULT_EVENT = "Techtonic-2026"
+HEADER_FILE = os.path.join("_template", "header.md")
+PAGEBREAK = '<div style="page-break-after: always;"></div>'
 
 
 def sh(args, cwd=None, check=True):
-    return subprocess.run(args, cwd=cwd, check=check, text=True,
-                          capture_output=True)
+    return subprocess.run(args, cwd=cwd, check=check, text=True, capture_output=True)
 
 
 def is_external(p):
@@ -60,21 +67,16 @@ def rewrite_paths(text, prefix):
         if p.startswith("./"):
             p = p[2:]
         return f"{pre}{prefix}/{p}{post}"
-    text = IMG_MD.sub(fix, text)
-    text = IMG_HTML.sub(fix, text)
-    return text
+    return IMG_HTML.sub(fix, IMG_MD.sub(fix, text))
 
 
 def github_slug(s):
-    """Anchor ala GitHub: lowercase, buang tanda baca, spasi -> '-'."""
     s = s.strip().lower()
-    s = re.sub(r"[^\w\s-]", "", s)   # buang tanda baca (biarkan huruf, angka, _, -, spasi)
-    s = s.replace(" ", "-")
-    return s
+    s = re.sub(r"[^\w\s-]", "", s)
+    return s.replace(" ", "-")
 
 
 def parse_meta(text, fallback_title):
-    """Ambil metadata opsional + judul dari heading pertama."""
     category, points = "", ""
     m = re.search(r"<!--(.*?)-->", text, re.S)
     if m:
@@ -94,11 +96,10 @@ def parse_meta(text, fallback_title):
 
 
 def strip_body(text):
-    """Buang HTML comment metadata + heading judul pertama (diganti heading rakitan)."""
+    """Buang komentar metadata + heading judul pertama (diganti heading rakitan)."""
     text = re.sub(r"<!--.*?-->", "", text, count=1, flags=re.S)
-    lines = text.splitlines()
     out, dropped = [], False
-    for ln in lines:
+    for ln in text.splitlines():
         if not dropped and re.match(r"^\s{0,3}#{1,6}\s+", ln):
             dropped = True
             continue
@@ -114,7 +115,6 @@ def detect_members(root, explicit):
         d = os.path.join(root, name)
         if not os.path.isdir(d) or name in SKIP_DIRS or name.startswith("."):
             continue
-        # anggota = folder yang punya minimal satu subfolder berisi writeup
         for chal in os.listdir(d):
             cd = os.path.join(d, chal)
             if os.path.isdir(cd) and any(
@@ -140,16 +140,14 @@ def find_writeups(root, members):
                 fp = os.path.join(cdir, cand)
                 if os.path.isfile(fp):
                     items.append({
-                        "member": member,
-                        "chal": chal,
-                        "path": fp,
+                        "member": member, "chal": chal, "path": fp,
                         "reldir": os.path.relpath(cdir, root).replace(os.sep, "/"),
                     })
                     break
     return items
 
 
-def build(root, out_name, members):
+def build(root, out_name, members, event, pagebreak=True):
     items = find_writeups(root, members)
     if not items:
         print("[-] Tidak ada writeup ditemukan. Pastikan struktur "
@@ -161,48 +159,50 @@ def build(root, out_name, members):
         with open(it["path"], encoding="utf-8") as f:
             raw = f.read()
         title, cat, pts = parse_meta(raw, it["chal"])
-        body = rewrite_paths(strip_body(raw), it["reldir"])
-        heading = f"{i}. {title}"
-        entries.append({**it, "n": i, "title": title, "cat": cat,
-                        "pts": pts, "body": body, "heading": heading,
-                        "anchor": github_slug(heading)})
+        head = f"{i}. `{title}` — {cat}" if cat else f"{i}. `{title}`"
+        entries.append({**it, "n": i, "title": title, "cat": cat, "pts": pts,
+                        "head": head, "anchor": github_slug(head),
+                        "body": rewrite_paths(strip_body(raw), it["reldir"])})
 
-    lines = []
-    lines.append(f"# 🏁 Writeup — {os.path.basename(os.path.abspath(root))}")
-    lines.append("")
-    lines.append(f"> Digabung otomatis oleh `build_writeup.py` · {date.today().isoformat()} · "
-                 f"{len(entries)} challenge")
-    lines.append("")
-    lines.append("## Daftar Isi")
-    lines.append("")
-    lines.append("| # | Challenge | Kategori | Poin | Solver |")
-    lines.append("|---|---|---|---|---|")
+    pb = ("\n" + PAGEBREAK + "\n") if pagebreak else ""
+    out = []
+
+    # --- header dari template, atau default ---
+    hpath = os.path.join(root, HEADER_FILE)
+    if os.path.isfile(hpath):
+        with open(hpath, encoding="utf-8") as f:
+            out.append(re.sub(r"<!--.*?-->", "", f.read(), flags=re.S).strip())
+    else:
+        out.append(f"# Writeup {event}")
+    out.append(pb)
+
+    # --- Daftar Isi Challenge ---
+    out.append("## Daftar Isi Challenge\n")
+    out.append("| #   | Challenge | Kategori | Points | Solver |")
+    out.append("| --- | --------- | -------- | ------ | ------ |")
     for e in entries:
-        lines.append(f"| {e['n']} | [{e['title']}](#{e['anchor']}) | "
-                     f"{e['cat'] or '-'} | {e['pts'] or '-'} | {e['member']} |")
-    lines.append("")
-    lines.append("---")
-    lines.append("")
+        out.append(f"| {e['n']} | [`{e['title']}`](#{e['anchor']}) | "
+                   f"`{e['cat'] or '-'}` | `{e['pts'] or '-'}` | {e['member']} |")
+    out.append(pb)
+
+    # --- tiap challenge ---
     for e in entries:
+        out.append(f"# {e['head']}")
         meta = " · ".join(x for x in (
-            f"`{e['cat']}`" if e['cat'] else "",
-            f"{e['pts']} poin" if e['pts'] else "",
             f"solved by **{e['member']}**",
+            f"{e['pts']} poin" if e['pts'] else "",
         ) if x)
-        lines.append(f"## {e['heading']}")
-        lines.append("")
-        if meta:
-            lines.append(meta)
-            lines.append("")
-        lines.append(e["body"])
-        lines.append("")
-        lines.append("---")
-        lines.append("")
+        out.append(f"\n> {meta}\n" if meta else "")
+        out.append("---\n")
+        out.append(e["body"])
+        out.append(pb)
 
-    out_path = os.path.join(root, out_name)
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines).rstrip() + "\n")
-    print(f"[+] {out_path} dibuat — {len(entries)} challenge:")
+    text = "\n".join(p for p in out if p is not None)
+    text = re.sub(r"\n{3,}", "\n\n", text).rstrip() + "\n"
+    with open(os.path.join(root, out_name), "w", encoding="utf-8") as f:
+        f.write(text)
+
+    print(f"[+] {out_name} dibuat — {len(entries)} challenge:")
     for e in entries:
         print(f"    {e['n']:>2}. {e['title']:<28} [{e['member']}]")
     return True
@@ -210,13 +210,15 @@ def build(root, out_name, members):
 
 def main():
     ap = argparse.ArgumentParser(description="Gabungkan writeup per anggota jadi satu file.")
-    ap.add_argument("-o", "--output", default="WRITEUP.md", help="nama file output (default WRITEUP.md)")
-    ap.add_argument("--members", nargs="*", help="daftar/urutan folder anggota (default: auto-detect)")
-    ap.add_argument("--dir", default=".", help="folder repo (default: folder saat ini)")
-    ap.add_argument("--repo", help="URL git untuk di-clone dulu")
-    ap.add_argument("--into", help="folder tujuan clone (dipakai bareng --repo)")
-    ap.add_argument("--pull", action="store_true", help="git pull dulu sebelum merakit")
-    ap.add_argument("--push", action="store_true", help="commit + push hasilnya")
+    ap.add_argument("-o", "--output", default="WRITEUP.md")
+    ap.add_argument("--members", nargs="*")
+    ap.add_argument("--dir", default=".")
+    ap.add_argument("--event", default=DEFAULT_EVENT, help="judul kalau _template/header.md tak ada")
+    ap.add_argument("--repo")
+    ap.add_argument("--into")
+    ap.add_argument("--pull", action="store_true")
+    ap.add_argument("--push", action="store_true")
+    ap.add_argument("--no-pagebreak", action="store_true", help="tanpa page-break PDF")
     args = ap.parse_args()
 
     root = args.dir
@@ -238,18 +240,18 @@ def main():
         sys.exit(1)
     print(f"[*] Anggota: {', '.join(members)}")
 
-    if not build(root, args.output, members):
+    if not build(root, args.output, members, args.event, not args.no_pagebreak):
         sys.exit(1)
 
     if args.push:
         sh(["git", "add", args.output], cwd=root)
-        st = sh(["git", "status", "--porcelain", args.output], cwd=root).stdout.strip()
-        if not st:
-            print("[*] Tidak ada perubahan pada output, skip commit.")
+        if not sh(["git", "status", "--porcelain", args.output], cwd=root).stdout.strip():
+            print("[*] Tidak ada perubahan, skip commit.")
             return
         sh(["git", "commit", "-m", f"build: rakit {args.output} otomatis"], cwd=root)
         r = sh(["git", "push"], cwd=root, check=False)
-        print("[+] push:", (r.stderr or r.stdout).strip().splitlines()[-1] if (r.stderr or r.stdout).strip() else "ok")
+        msg = (r.stderr or r.stdout).strip().splitlines()
+        print("[+] push:", msg[-1] if msg else "ok")
 
 
 if __name__ == "__main__":
