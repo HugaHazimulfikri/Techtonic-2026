@@ -48,16 +48,25 @@ Kalau nggak diisi pun aman: kategori/poin diisi `-`, judul diambil dari heading 
 
 ## ⚡ Alur pas lomba
 
-**Tiap anggota** (setelah solve):
+**Tiap anggota** (setelah solve): taruh writeup di folder kamu, lalu simpan pakai **satu perintah**:
 
 ```bash
-git pull                                  # ambil update terbaru
-mkdir -p nexsus404/NamaSoal/img           # ganti nexsus404 dgn folder kamu
-# taruh WRITEUP.md + screenshot di situ
+mkdir -p nexsus404/NamaSoal/img     # ganti nexsus404 dgn folder kamu; taruh writeup + gambar
+./simpan.sh nexsus404/NamaSoal "NamaSoal solved"
+```
+
+`simpan.sh` otomatis `git add` -> `commit` -> `git pull --rebase` -> `git push` (retry kalau
+origin barusan berubah), jadi **nggak perlu ngetik perintah git manual** dan nggak kena "fetch
+first". Kalau mau simpan semua perubahan sekaligus: `./simpan.sh` (tanpa argumen).
+
+<details><summary>Cara manual (kalau nggak mau pakai simpan.sh)</summary>
+
+```bash
 git add nexsus404/NamaSoal
 git commit -m "add NamaSoal"
-git push
+git pull --rebase && git push
 ```
+</details>
 
 **Gabung jadi satu** (siapa aja):
 
