@@ -16,13 +16,26 @@
 
 | #   | Challenge | Kategori | Points | Solver |
 | --- | --------- | -------- | ------ | ------ |
-| 1 | [`Cinder`](#1-cinder--forensics) | `forensics` | `100` | nexsus404 |
-| 2 | [`Tes A`](#2-tes-a--web) | `web` | `250` | sanzxcte |
-| 3 | [`BMN`](#3-bmn) | `-` | `-` | x0r |
+| 1 | [`Afterimage`](#1-afterimage) | `-` | `-` | nexsus404 |
+| 2 | [`Cinder`](#2-cinder--forensics) | `forensics` | `100` | nexsus404 |
+| 3 | [`Tes A`](#3-tes-a--web) | `web` | `250` | sanzxcte |
+| 4 | [`BMN`](#4-bmn) | `-` | `-` | x0r |
 
 <div style="page-break-after: always;"></div>
 
-# 1. `Cinder` — forensics
+# 1. `Afterimage`
+
+> solved by **nexsus404**
+
+---
+
+LiME memory dump.
+
+![x](https://github.com/user-attachments/assets/abc.png)
+
+<div style="page-break-after: always;"></div>
+
+# 2. `Cinder` — forensics
 
 > solved by **nexsus404** · 100 poin
 
@@ -32,7 +45,7 @@ Analisis WAL SQLite.
 
 <div style="page-break-after: always;"></div>
 
-# 2. `Tes A` — web
+# 3. `Tes A` — web
 
 > solved by **sanzxcte** · 250 poin
 
@@ -44,7 +57,7 @@ Langkah exploit.
 
 <div style="page-break-after: always;"></div>
 
-# 3. `BMN`
+# 4. `BMN`
 
 > solved by **x0r**
 
