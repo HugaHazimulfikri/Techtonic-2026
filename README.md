@@ -77,33 +77,38 @@ python3 build_writeup.py --pull --push
 Itu bakal: `git pull` -> scan semua folder anggota -> rakit `WRITEUP.md` (daftar isi + semua
 soal, path gambar dibetulin otomatis) -> `git commit` + `git push`.
 
-## 😴 Mode auto (jalan sekali, nggak usah ngetik lagi)
+## 😴 Cara paling enak (biar nggak nabrak)
 
-Males ngetik perintah tiap kali? Jalanin **watch sekali**, terus tinggal **taruh/edit file
-writeup di folder** — sisanya otomatis. Ada 2 peran:
+Idenya: **cuma 1 orang jadi "perakit"** yang ngerakit `WRITEUP.md` otomatis TAPI **nggak push**.
+Karena perakit nggak push, `origin` nggak pernah dapat commit `WRITEUP.md` -> **anggota lain
+aman push seperti biasa, nggak kena "fetch first"**.
 
-**Anggota** (tiap orang, di clone masing-masing) — auto-push writeup begitu disimpan:
-
-```bash
-./simpan.sh --watch
-```
-Habis itu tinggal bikin/edit file writeup di folder kamu; tiap ada perubahan, otomatis
-`add -> commit -> pull --rebase -> push`. Nggak usah sentuh git/`simpan.sh` lagi.
-
-**Perakit** (cukup **satu orang**) — auto-rakit `WRITEUP.md` gabungan:
+**Perakit** (1 orang) — jalanin sekali, biarin nongkrong:
 
 ```bash
 python3 build_writeup.py --watch
 ```
-Tiap ada writeup baru masuk (dari siapa pun), otomatis `pull` -> rakit ulang `WRITEUP.md` ->
-`push`. Writeup mentah yang ditaruh lokal di mesin si perakit juga ikut ke-push otomatis.
+Tiap ada anggota push writeup baru, dia otomatis `git pull` -> rakit ulang `WRITEUP.md`
+**di lokal** (nggak di-push). Perakit selalu punya `WRITEUP.md` gabungan versi terbaru di
+komputernya. Ganti interval: `--watch --interval 10`. Ctrl+C untuk berhenti.
 
-Interval default 20 detik (build) / 15 detik (simpan); ganti dengan `--interval N` /
-`--watch N`. Ctrl+C untuk berhenti. Cukup **satu orang** yang jadi perakit biar `WRITEUP.md`
-nggak rebutan.
+**Anggota lain** — push writeup masing-masing seperti biasa (nggak jalanin tool apa pun):
 
-> Ringkas: **anggota** `./simpan.sh --watch` · **perakit** `python3 build_writeup.py --watch`.
-> Habis itu semua orang tinggal nulis writeup, nggak ngetik perintah lagi.
+```bash
+git add namafolder/NamaSoal
+git commit -m "NamaSoal"
+git push
+# atau singkat: ./simpan.sh namafolder/NamaSoal
+```
+
+**Publish `WRITEUP.md` final** — di AKHIR lomba, perakit push sekali:
+
+```bash
+python3 build_writeup.py --push
+```
+
+> `WRITEUP.md` sengaja di-`.gitignore` biar nggak kepush nggak sengaja selama lomba. Perakit
+> pegang versi lokalnya; baru di-publish pas `--push` di akhir.
 
 ## 🛠️ Opsi tool
 

@@ -215,16 +215,17 @@ def current_branch(root):
 
 
 def push_output(root, out_name):
-    """commit + push out_name; return True kalau ada perubahan yang dipush."""
-    sh(["git", "add", out_name], cwd=root)
+    """commit + push out_name (force-add karena WRITEUP.md di-gitignore); return True
+    kalau ada perubahan yang dipush."""
+    sh(["git", "add", "-f", out_name], cwd=root)
     if not sh(["git", "status", "--porcelain", out_name], cwd=root).stdout.strip():
         return False
-    sh(["git", "commit", "-m", f"build: rakit {out_name} otomatis"], cwd=root)
-    r = sh(["git", "push"], cwd=root, check=False)
-    if r.returncode != 0:                      # kalau ketolak, sinkron lalu coba lagi
-        sh(["git", "pull", "--rebase"], cwd=root, check=False)
-        r = sh(["git", "push"], cwd=root, check=False)
-    return r.returncode == 0
+    sh(["git", "commit", "-m", f"publish {out_name}"], cwd=root)
+    for _ in range(3):
+        if sh(["git", "push"], cwd=root, check=False).returncode == 0:
+            return True
+        sh(["git", "pull", "--rebase", "--autostash"], cwd=root, check=False)
+    return True
 
 
 def sync_once(root, args, quiet=False):
@@ -265,28 +266,42 @@ def commit_push_all(root, msg):
 
 def watch_loop(root, args):
     br = current_branch(root)
-    print(f"[*] MODE WATCH aktif di branch '{br}', cek tiap {args.interval}s. "
-          f"Ctrl+C untuk berhenti.")
-    print("    (taruh/edit file writeup di folder anggota -> otomatis push + rakit)")
+    mode = "PUSH (publish tiap update)" if args.push else "LOKAL (tidak di-push)"
+    print(f"[*] MODE WATCH [{mode}] branch '{br}', cek tiap {args.interval}s. Ctrl+C untuk berhenti.")
+    if not args.push:
+        print(f"    {args.output} dirakit ulang di lokal tiap anggota lain push writeup baru.")
+        print(f"    (perakit TIDAK push -> anggota lain aman push seperti biasa, tidak nabrak)")
+    prev = None
     first = True
     while True:
         try:
             if not first:
                 time.sleep(args.interval)
             first = False
-            # 1) tarik update dari anggota lain (autostash lindungi kerjaan lokal)
+            # 1) tarik writeup terbaru dari anggota (autostash lindungi kerjaan lokal)
             sh(["git", "fetch", "origin", br], cwd=root, check=False)
             sh(["git", "pull", "--rebase", "--autostash"], cwd=root, check=False)
-            # 2) rakit ulang WRITEUP.md dari semua writeup yang ada
+            # 2) rakit ulang WRITEUP.md di lokal
             members = detect_members(root, args.members)
-            if members:
-                build(root, args.output, members, args.event, not args.no_pagebreak)
-            # 3) commit + push SEMUA (writeup mentah yang baru ditaruh + WRITEUP.md)
-            if commit_push_all(root, "auto-sync: writeup + rakit WRITEUP.md"):
-                n = len(find_writeups(root, members)) if members else 0
-                print(f"\n[+] tersinkron & ter-push ({n} challenge di {args.output}).")
+            entries = (build(root, args.output, members, args.event,
+                             not args.no_pagebreak) if members else None)
+            n = len(entries) if entries else 0
+            # 3) publish HANYA kalau --push; kalau tidak, cukup lokal
+            if args.push:
+                if entries and push_output(root, args.output):
+                    print(f"\n[+] {args.output} ({n} challenge) -> published.")
+                else:
+                    print(".", end="", flush=True)
             else:
-                print(".", end="", flush=True)  # heartbeat: tidak ada perubahan
+                try:
+                    cur = open(os.path.join(root, args.output), encoding="utf-8").read()
+                except OSError:
+                    cur = None
+                if cur != prev:
+                    prev = cur
+                    print(f"\n[+] {args.output} diperbarui LOKAL ({n} challenge) — tidak di-push.")
+                else:
+                    print(".", end="", flush=True)
         except KeyboardInterrupt:
             print("\n[*] watch dihentikan.")
             break

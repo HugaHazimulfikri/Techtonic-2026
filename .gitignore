@@ -1,0 +1,5 @@
+# WRITEUP.md dirakit lokal oleh perakit, jangan ikut ke-commit
+WRITEUP.md
+__pycache__/
+*.pyc
+.DS_Store
