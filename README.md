@@ -6,19 +6,32 @@ lalu digabung otomatis jadi satu `WRITEUP.md` pakai [`build_writeup.py`](build_w
 ## 📁 Struktur folder
 
 ```
-<anggota>/<challenge>/WRITEUP.md      <- writeup (wajib)
-<anggota>/<challenge>/img/*.png       <- screenshot (opsional, ditulis "img/xxx.png" di writeup)
+<anggota>/<challenge>/<file .md>      <- writeup (wajib, 1 per folder soal)
+<anggota>/<challenge>/<gambar>        <- screenshot (opsional)
 <anggota>/<challenge>/<solver, soal>  <- opsional
 ```
 
 Folder anggota: `sanzxcte/`, `nexsus404/`, `x0r/`.
 
-Contoh:
+**Nama file writeup bebas** — nggak harus `WRITEUP.md`. Boleh `writeup.md`, `README.md`, atau
+`.md` apa pun (mis. `bmn.md`, `catatan.md`). Kalau ada beberapa `.md`, yang dipakai `WRITEUP.md`/
+`README.md` dulu, kalau nggak ada baru `.md` pertama (urut abjad).
+
+**Gambar bebas ditaruh di mana aja** asal path-nya **relatif ke folder soal**. Semua path relatif
+otomatis dibetulin saat digabung. Contoh yang semua valid:
+
+```markdown
+![x](img/01.png)        -> di subfolder img/
+![x](01-soal.png)       -> langsung di folder soal
+![x](ss/recon.png)      -> subfolder lain
+![x](https://...)       -> URL (github dll) dibiarkan apa adanya
+```
+
+Contoh struktur:
 
 ```
-nexsus404/BMN/WRITEUP.md
-nexsus404/BMN/img/01-soal.png
-sanzxcte/Ecliprime/WRITEUP.md
+nexsus404/BMN/WRITEUP.md      +  nexsus404/BMN/img/01-soal.png
+sanzxcte/Ecliprime/solve.md   +  sanzxcte/Ecliprime/output.png
 ```
 
 ### Metadata opsional

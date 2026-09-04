@@ -102,6 +102,22 @@ def strip_body(text):
     return "\n".join(out).strip("\n")
 
 
+PREFER = ("WRITEUP.md", "writeup.md", "Writeup.md", "README.md", "readme.md")
+
+
+def writeup_in(cdir):
+    """File writeup di folder soal: prioritas WRITEUP.md/README.md, kalau tidak
+    ada pakai file .md apa pun (jadi nama bebas)."""
+    for cand in PREFER:
+        if os.path.isfile(os.path.join(cdir, cand)):
+            return cand
+    try:
+        mds = sorted(f for f in os.listdir(cdir) if f.lower().endswith(".md"))
+    except OSError:
+        return None
+    return mds[0] if mds else None
+
+
 def detect_members(root, explicit):
     if explicit:
         return explicit
@@ -112,10 +128,7 @@ def detect_members(root, explicit):
             continue
         for chal in os.listdir(d):
             cd = os.path.join(d, chal)
-            if os.path.isdir(cd) and any(
-                os.path.isfile(os.path.join(cd, f))
-                for f in ("WRITEUP.md", "writeup.md", "README.md")
-            ):
+            if os.path.isdir(cd) and writeup_in(cd):
                 members.append(name)
                 break
     return members
@@ -131,14 +144,13 @@ def find_writeups(root, members):
             cdir = os.path.join(mdir, chal)
             if not os.path.isdir(cdir):
                 continue
-            for cand in ("WRITEUP.md", "writeup.md", "README.md"):
-                fp = os.path.join(cdir, cand)
-                if os.path.isfile(fp):
-                    items.append({
-                        "member": member, "chal": chal, "path": fp,
-                        "reldir": os.path.relpath(cdir, root).replace(os.sep, "/"),
-                    })
-                    break
+            wp = writeup_in(cdir)
+            if wp:
+                items.append({
+                    "member": member, "chal": chal,
+                    "path": os.path.join(cdir, wp),
+                    "reldir": os.path.relpath(cdir, root).replace(os.sep, "/"),
+                })
     return items
 
 
@@ -241,21 +253,29 @@ def watch_loop(root, args):
     br = current_branch(root)
     print(f"[*] MODE WATCH aktif di branch '{br}', cek tiap {args.interval}s. "
           f"Ctrl+C untuk berhenti.")
-    sync_once(root, args)                       # rakit awal
+    first = True
     while True:
         try:
-            time.sleep(args.interval)
+            if not first:
+                time.sleep(args.interval)
+            first = False
+            # 1) tarik update dari origin kalau ada (writeup dari anggota lain)
             sh(["git", "fetch", "origin", br], cwd=root, check=False)
-            local, remote = git_head(root), git_head(root, f"origin/{br}")
-            if remote and remote != local:
-                print(f"\n[*] update baru terdeteksi di origin/{br}, sinkron...")
+            if git_head(root) != git_head(root, f"origin/{br}"):
                 p = sh(["git", "pull", "--ff-only"], cwd=root, check=False)
                 if p.returncode != 0:
                     sh(["git", "checkout", "--", "."], cwd=root, check=False)
                     sh(["git", "pull", "--rebase"], cwd=root, check=False)
-                sync_once(root, args)
+            # 2) selalu rakit ulang; push HANYA kalau isi WRITEUP.md berubah
+            members = detect_members(root, args.members)
+            entries = build(root, args.output, members, args.event,
+                            not args.no_pagebreak) if members else None
+            if entries and push_output(root, args.output):
+                print(f"\n[+] {args.output} diperbarui ({len(entries)} challenge) -> pushed:")
+                for e in entries:
+                    print(f"    {e['n']:>2}. {e['title']:<28} [{e['member']}]")
             else:
-                print(".", end="", flush=True)  # heartbeat, biar keliatan hidup
+                print(".", end="", flush=True)  # heartbeat: tidak ada perubahan
         except KeyboardInterrupt:
             print("\n[*] watch dihentikan.")
             break
