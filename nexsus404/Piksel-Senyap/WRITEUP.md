@@ -26,8 +26,6 @@
 TechtonicExpoCTF{lsb_tersembunyi_66394FFC}
 ```
 
-![flag diterima](img/05-flag.png)
-
 ---
 
 ## 2. Analisis Awal

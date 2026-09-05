@@ -26,8 +26,6 @@ TechtonicExpoCTF{boleh_read_66394FFC}
 Bukti diterima platform ada di tangkapan halaman soal di atas — status berubah jadi **SOLVED**
 dengan keterangan *"✓ FLAG BENAR"*.
 
-![flag diterima](img/01-soal.png)
-
 ---
 
 ## 2. Analisis Awal

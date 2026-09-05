@@ -28,8 +28,6 @@
 TechtonicExpoCTF{ramal_lcg_nakal_66394FFC}
 ```
 
-![flag diterima](img/05-flag.png)
-
 ---
 
 ## 2. Analisis Awal

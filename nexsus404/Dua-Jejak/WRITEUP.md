@@ -33,8 +33,6 @@ TechtonicExpoCTF{rani_desa_66394FFC}
 Bukti diterima platform ada di tangkapan halaman soal di atas — status **SOLVED** dengan
 keterangan *"✓ FLAG BENAR"*.
 
-![flag diterima](img/01-soal.png)
-
 ---
 
 ## 2. Analisis Awal
