@@ -1,4 +1,4 @@
-<img width="2000" height="1668" alt="image" src="https://github.com/user-attachments/assets/a6b77aff-5931-4d9d-bc7d-6a25facd8f34" /><!-- category: <kategori> | points: <poin> -->
+<!-- category: <kategori> | points: <poin> -->
 # <Nama Soal>
 
 | | |
@@ -25,7 +25,7 @@ Kunci adalah nama lengkap asli penulis dalam format tanpa spasi, contoh: budi_sa
 
 
 ![soal]
-<img width="2000" height="1668" alt="image" src="https://github.com/user-attachments/assets/8c8a485a-ccb4-4a9f-9339-23a8c8c615c0" />
+<img width="2016" height="1664" alt="image" src="https://github.com/user-attachments/assets/b5f7ad4f-9065-4fac-a234-559f1c41b9e9" />
 
 ---
 
