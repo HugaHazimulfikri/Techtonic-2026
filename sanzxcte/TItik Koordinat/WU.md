@@ -105,7 +105,7 @@ Flag : TechtonicExpoCTF{-6.9025107.6054_66394FFC}
 
 | Tool | Versi | Dipakai untuk |
 | :--- | :--- | :--- |
-| <ExifTool> | <13.36> | <Mengekstrak metadata tersembunyi pada file gambar (foto_a.jpg dan foto_b.png)> |
+| ExifTool | <13.36> | <Mengekstrak metadata tersembunyi pada file gambar (foto_a.jpg dan foto_b.png)> |
 | <Base64 Decoder> | <Built-in> | <Menerjemahkan string Comment metadata foto> |
 | <ROT13 Decoder> | <Built-in> | <Membaca sandi geser teks petunjuk lokasi> |
 =
