@@ -5,7 +5,7 @@
 | :--- | :--- |
 | **Challenge** | Titik Koordinat |
 | **Kategori** | osint  |
-| **Poin** | <poin> |
+| **Poin** | 296 |
 | **Author** | <author kalau ada> |
 | **Connection** |Lampiran laporan_hilang (catatan.txt, config.json, obrolan.txt, foto_a.jpg, foto_b.png)|
 | **Solver** | sanzxcte |
