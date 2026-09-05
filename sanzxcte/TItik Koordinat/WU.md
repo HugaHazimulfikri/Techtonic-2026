@@ -11,7 +11,7 @@
 | **Solver** | sanzxcte |
 | **Status** | Solved |
 
-> DSeorang mahasiswa bernama Dimas dilaporkan hilang setelah pamit pergi ke "kota lama" pada Minggu malam. Satu-satunya aset yang kamu miliki adalah arsip dari ponselnya: obrolan terakhir dengan Rina, catatan singkat, riwayat pencarian di aplikasi peta, serta dua foto yang sempat ia ambil.
+> Seorang mahasiswa bernama Dimas dilaporkan hilang setelah pamit pergi ke "kota lama" pada Minggu malam. Satu-satunya aset yang kamu miliki adalah arsip dari ponselnya: obrolan terakhir dengan Rina, catatan singkat, riwayat pencarian di aplikasi peta, serta dua foto yang sempat ia ambil.
 Tugas kamu sebagai analis:
 1. Bongkar arsip dan identifikasi petunjuk lokasi yang tersebar.
 2. Perhatikan bahwa metadata foto bisa menyimpan pesan, dan koordinat mungkin tidak langsung terbaca - ada yang disembunyikan.
@@ -49,7 +49,8 @@ cat obrolan.txt
 ```
 
 ![recon]
-![alt text](image-1.png)
+<img width="1886" height="934" alt="image" src="https://github.com/user-attachments/assets/9ea5de33-a8af-44d6-b1b9-9ce33344d8e9" />
+
 
 ---
 
