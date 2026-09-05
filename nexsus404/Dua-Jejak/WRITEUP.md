@@ -30,7 +30,10 @@
 TechtonicExpoCTF{rani_desa_66394FFC}
 ```
 
-![flag diterima](img/05-flag.png)
+Bukti diterima platform ada di tangkapan halaman soal di atas — status **SOLVED** dengan
+keterangan *"✓ FLAG BENAR"*.
+
+![flag diterima](img/01-soal.png)
 
 ---
 
