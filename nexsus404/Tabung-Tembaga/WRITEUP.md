@@ -187,8 +187,6 @@ mulai meleset di digit ke-14:
 python3 gagal.py
 ```
 
-![percobaan yang gagal](img/05-gagal.png)
-
 ## Yang saya ambil dari soal ini
 
 Pelajaran utamanya: ukur dulu, baru pilih senjata. Deskripsi soal mengarahkan ke Franklin-Reiter dan itu

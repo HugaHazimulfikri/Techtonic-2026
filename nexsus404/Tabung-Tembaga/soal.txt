@@ -1,0 +1,20 @@
+Tabung Tembaga - Techtonic Expo Vol.3 2026
+Kategori : Cryptography (Eliminasi)
+Halaman  : techtonicexpo.online/tantangan/14
+Service  : http://168.110.219.59:5015
+
+--- DESKRIPSI ---
+Dua pesan terlahir dari akar yang sama. Pesan kedua hanya berselisih satu langkah dari yang
+pertama, dan keduanya dipanggang dengan pangkat tiga di dalam tabung yang sama.
+
+Dengan eksponen sekecil itu, dua teks sandi yang saling berkerabat bisa diadu hingga saling
+menguak. Selisih satu langkah sudah cukup untuk merobek keduanya.
+
+Bedah polinomnya, cari akar bersama, dan pesan pertama akan menampakkan diri.
+
+--- CATATAN SERVICE ---
+Pesan kedua ditulis satu langkah setelah pesan pertama.
+Pangkat tiga yang kecil membuat keduanya saling berbisik.
+
+--- PARAMETER ---
+Nilai n, e, c1, c2 ada di params.py (dipisah supaya bisa langsung di-import solver).

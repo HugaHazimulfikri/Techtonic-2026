@@ -204,8 +204,6 @@ bisa direproduksi dengan [`gagal.py`](gagal.py):
 python3 gagal.py
 ```
 
-![percobaan yang gagal](img/05-gagal.png)
-
 ## Yang saya ambil dari soal ini
 
 Yang bikin soal ini menarik: penyembunyiannya **asimetris**. Dua berkas yang kelihatan kembar memakai

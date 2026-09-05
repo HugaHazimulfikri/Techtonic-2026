@@ -201,8 +201,6 @@ servernya memang `Tanda tidak cocok` dan bukan `tidak sah` seperti yang dicari f
 python3 gagal.py
 ```
 
-![percobaan yang gagal](img/05-gagal.png)
-
 ## Yang saya ambil dari soal ini
 
 Dua serangan di soal ini sama-sama menyerang **integritas**, bukan kerahasiaan. Saya tidak pernah memecahkan

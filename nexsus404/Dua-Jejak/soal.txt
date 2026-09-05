@@ -1,0 +1,17 @@
+Dua Jejak - Techtonic Expo Vol.3 2026
+Kategori : OSINT (Eliminasi)
+Halaman  : techtonicexpo.online/tantangan/39
+Berkas   : dua_jejak.zip (berisi jejak_a.png, jejak_b.png, analisis.txt)
+
+--- DESKRIPSI ---
+Dua buah foto ditemukan dari dua hari yang berbeda, diduga diambil oleh orang yang sama di lokasi
+yang sama. Kamu diminta mengidentifikasi pemilik jejak berdasarkan konsistensi data.
+
+Berkas:
+- Dua foto (jejak_a, jejak_b).
+- Catatan analisis awal.
+
+Bandingkan kedua foto secara mendalam - termasuk data yang tidak terlihat langsung. Ada nama yang
+konsisten di antara keduanya.
+
+Kunci adalah nama pemilik dalam format tanpa spasi, contoh: rani_desa

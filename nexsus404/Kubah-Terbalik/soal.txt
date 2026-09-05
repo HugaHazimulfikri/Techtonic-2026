@@ -1,0 +1,29 @@
+Kubah Terbalik - Techtonic Expo Vol.3 2026
+Kategori : Cryptography (Eliminasi)
+Halaman  : techtonicexpo.online/tantangan/15
+Service  : http://168.110.219.59:5016
+
+--- DESKRIPSI ---
+Dua pintu berlapis. Pintu pertama dikunci kartu terenkripsi yang rantainya saling memengaruhi.
+Mengubah satu kotak di depan akan mengubah isi di belakangnya. Ubah satu angka di kartu, dan
+peranmu berubah.
+
+Pintu kedua dijaga tanda tangan yang dibuat dari rahasia pendek yang disambung di depan data,
+lalu dicincang. Tanda itu bisa diulur tanpa tahu rahasianya, selama kamu paham cara cincang
+bekerja.
+
+Kedua lapis memberi separuh kata kunci.
+
+--- LAPIS 1: /izin ---
+Kartu terenkripsi:
+34bb4f272ce495247f66df02e7a85ac71c1100c7472a8e1b62e9c1235a23ca03e18c18db42ab52ad68f647aa3eda68f81951088e74311b41d536fee11bffa323
+
+Cara: kirim ulang ke /izin/buka?data=...
+Kartu memakai rantai blok yang saling mempengaruhi.
+
+--- LAPIS 2: /ulur ---
+Data asli   : halaman=utama
+Tanda tangan: 0be8eb5f8bc38356bbf06ad423ccf71581991159ccf49b133d7f50be0d72431e
+
+Cara: tanda tangan dibuat dari rahasia pendek yang disambung di depan data, lalu dicincang
+SHA-256. Kirim data (hex) dan tanda ke /ulur/buka?data=...&tanda=...

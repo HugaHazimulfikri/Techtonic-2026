@@ -207,8 +207,6 @@ Dua kegagalan ini bisa direproduksi dengan [`gagal.py`](gagal.py):
 python3 gagal.py
 ```
 
-![percobaan yang gagal](img/05-gagal.png)
-
 ## Yang saya ambil dari soal ini
 
 Yang bikin serangan ini jalan bukan trik tunggal, tapi urutan mengupasnya: selisih menghilangkan `c`,

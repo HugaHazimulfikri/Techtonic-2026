@@ -177,8 +177,6 @@ Ketiga percobaan unpack yang gagal dan jebakan LSB merahnya bisa direproduksi de
 python3 gagal.py
 ```
 
-![percobaan yang gagal](img/05-gagal.png)
-
 ## Yang saya ambil dari soal ini
 
 Yang menarik, noise acak itu justru menguntungkan buat yang menganalisis. Karena tiap bit-plane noise murni

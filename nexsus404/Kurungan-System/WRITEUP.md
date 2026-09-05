@@ -285,8 +285,6 @@ Sebagian besar kegagalan itu bisa direproduksi dengan [`gagal.py`](gagal.py), ya
 python3 gagal.py
 ```
 
-![percobaan yang gagal](img/06-gagal.png)
-
 ## Yang saya ambil dari soal ini
 
 Intinya satu: **io_uring adalah pintu belakang seccomp**. Seccomp menyaring syscall, sedangkan io_uring

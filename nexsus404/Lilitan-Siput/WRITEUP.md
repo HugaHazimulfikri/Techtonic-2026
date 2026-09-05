@@ -190,8 +190,6 @@ Keempat tebakan kunci dan konvensi transposisi yang salah bisa direproduksi deng
 python3 gagal.py
 ```
 
-![percobaan yang gagal](img/05-gagal.png)
-
 ## Yang saya ambil dari soal ini
 
 Sandi berlapis harus dibongkar dari lapis terluar. Kalau urutannya dibalik, soalnya terasa mustahil padahal

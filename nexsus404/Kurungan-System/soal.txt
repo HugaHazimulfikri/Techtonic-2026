@@ -1,0 +1,19 @@
+Kurungan System - Techtonic Expo Vol.3 2026
+Kategori : Binary Exploitation (Eliminasi)
+Halaman  : techtonicexpo.online/tantangan/34
+Akses    : nc 168.110.219.59 5025
+Berkas   : kurungan.bin (ada di folder ini)
+
+--- DESKRIPSI ---
+Program membatasi panggilan sistem. Tentukan panggilan yang masih diizinkan untuk membaca
+bendera.
+
+--- BANNER SERVICE ---
++========================================+
+|       KURUNGAN SYSTEM v3.0            |
+|  seccomp aktif: open & execve mati    |
+|  jalur keluar  : io_uring saja        |
++========================================+
+alamat bss   : 0x...
+alamat main  : 0x...
+masukan isi  :

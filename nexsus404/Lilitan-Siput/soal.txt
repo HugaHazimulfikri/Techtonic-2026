@@ -1,0 +1,21 @@
+Lilitan Siput - Techtonic Expo Vol.3 2026
+Kategori : Cryptography (Eliminasi)
+Halaman  : techtonicexpo.online/tantangan/12
+Service  : http://168.110.219.59:5013
+
+--- DESKRIPSI ---
+Jejak siput berputar dua kali. Lapisan pertama menggeser tiap huruf mengikuti irama lima ketukan.
+Lapisan kedua membungkus hasilnya dalam enam kolom yang dibaca dengan urutan ganjil.
+
+Urutan pembacaan kolom sudah diumumkan, dan panjang irama juga bukan rahasia. Yang tersisa
+hanyalah membalik dua lapisan itu dengan teliti.
+
+Kalimat asli memakai huruf besar tanpa spasi, dan di dalamnya terselip kata kunci yang sedang
+kamu cari.
+
+--- JEJAK SIPUT (ciphertext dari service) ---
+LLUZQXMRIQGVNTUCJGGCAXFCIXLCCNJHRIAHNUIXDUIQYYDYVQQLES
+
+--- CATATAN SERVICE ---
+Irama vigenere memakai kata sandi lima huruf.
+Enam kolom dibaca dengan urutan: 3-1-5-0-4-2.

@@ -1,0 +1,28 @@
+Generator Nakal - Techtonic Expo Vol.3 2026
+Kategori : Cryptography (Eliminasi)
+Halaman  : techtonicexpo.online/tantangan/13
+Service  : http://168.110.219.59:5014
+
+--- DESKRIPSI ---
+Mesin ini membangkitkan angka dengan rumus yang kaku. Setiap angka adalah anak dari angka
+sebelumnya. Rumusnya memakai pengali, penambah, dan sisa bagi besar yang semuanya tersembunyi.
+
+Tapi deret keluarannya bicara lebih banyak dari yang disangka. Dari beberapa angka berurutan,
+semua parameter rahasia bisa dibedah satu per satu.
+
+Tebak angka berikutnya dan kirim ke mesin. Kalau tepat, mesin mengakui kuncinya.
+
+--- DERET KELUARAN (dari service) ---
+x0 = 987654321012345678
+x1 = 6729977692791834322
+x2 = 6578750652915850225
+x3 = 16888812019745501733
+x4 = 2381187045401728115
+x5 = 16223185267011201142
+x6 = 249113833186806331
+x7 = 7114183187174364876
+
+--- CATATAN SERVICE ---
+Tebak angka berikutnya di /tebak?angka=...
+Rumusnya memakai tiga parameter: pengali, penambah, dan sisa bagi yang besar.
+Semua tersembunyi, tapi deret di atas cukup untuk membongkarnya.
