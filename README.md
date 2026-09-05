@@ -57,7 +57,15 @@ diisi, kategori/poin jadi `-`, judul diambil dari heading pertama atau nama fold
 
 ### Anggota (tiap orang)
 
-Taruh writeup di folder kamu, lalu simpan. Cara paling gampang, satu perintah:
+Biar cepat, salin template kosong ke folder soal kamu lalu isi:
+
+```bash
+mkdir -p nexsus404/NamaSoal/img
+cp _template/WRITEUP_template.md nexsus404/NamaSoal/WRITEUP.md
+```
+
+Terus edit `WRITEUP.md`-nya (ada di [`_template/WRITEUP_template.md`](_template/WRITEUP_template.md)),
+taruh screenshot di `img/`, lalu simpan. Cara paling gampang, satu perintah:
 
 ```bash
 ./simpan.sh nexsus404/NamaSoal "namasoal solved"
