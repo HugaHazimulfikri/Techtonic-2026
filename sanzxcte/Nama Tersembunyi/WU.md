@@ -1,33 +1,38 @@
-<!-- category: <kategori> | points: <poin> -->
+<img width="2000" height="1668" alt="image" src="https://github.com/user-attachments/assets/a6b77aff-5931-4d9d-bc7d-6a25facd8f34" /><!-- category: <kategori> | points: <poin> -->
 # <Nama Soal>
 
 | | |
 | :--- | :--- |
-| **Challenge** | Titik Koordinat |
+| **Challenge** | Nama Tersembunyi |
 | **Kategori** | osint  |
-| **Poin** | 296 |
+| **Poin** | 289 |
 | **Author** | <author kalau ada> |
-| **Connection** |Lampiran laporan_hilang (catatan.txt, config.json, obrolan.txt, foto_a.jpg, foto_b.png)|
+| **Connection** |Lampiran identitas_pensil (email.txt, kunci_arsip.txt, sketsa_awal.png, surat.txt, arsip.zip)|
 | **Solver** | sanzxcte |
 | **Status** | Solved |
 
-> Seorang mahasiswa bernama Dimas dilaporkan hilang setelah pamit pergi ke "kota lama" pada Minggu malam. Satu-satunya aset yang kamu miliki adalah arsip dari ponselnya: obrolan terakhir dengan Rina, catatan singkat, riwayat pencarian di aplikasi peta, serta dua foto yang sempat ia ambil.
-Tugas kamu sebagai analis:
-1. Bongkar arsip dan identifikasi petunjuk lokasi yang tersebar.
-2. Perhatikan bahwa metadata foto bisa menyimpan pesan, dan koordinat mungkin tidak langsung terbaca - ada yang disembunyikan.
-3. Gabungkan semua petunjuk untuk menentukan titik lokasi secara spesifik, lalu hitung koordinat sebenarnya.
+> Seorang kontributor mengirim karya ke sebuah lomba fotografi menggunakan nama samaran. Panitia memerlukan identitas asli untuk verifikasi hak cipta, tetapi penulis hanya meninggalkan jejak digital yang tersebar.
 
-Kunci adalah koordinat lokasi dalam format desimal tanpa spasi, contoh: -6.1234107.45678
+Dalam arsip yang kamu dapatkan:
+- Surat elektronik dari panitia yang menjelaskan konteks.
+- Surat balasan dari penulis dengan nama samaran.
+- Catatan panitia yang mengarah pada kebiasaan penulis.
+- Sketsa awal karya (gambar).
+
+Analisislah seluruh berkas. Nama samaran, kebiasaan, dan lokasi yang disebutkan saling terhubung. Beberapa informasi mungkin tersembunyi pada metadata gambar maupun pada data yang tidak terlihat langsung.
+
+Kunci adalah nama lengkap asli penulis dalam format tanpa spasi, contoh: budi_santoso
+
 
 ![soal]
-<img width="2002" height="1620" alt="image" src="https://github.com/user-attachments/assets/54ad3dec-3c67-4838-aa17-64d88c5f6c70" />
+<img width="2000" height="1668" alt="image" src="https://github.com/user-attachments/assets/8c8a485a-ccb4-4a9f-9339-23a8c8c615c0" />
 
 ---
 
 ## 1. Flag
 
 ```
-TechtonicExpoCTF{-6.9025107.6054_66394FFC}
+TechtonicExpoCTF{bagas_wicaksono_66394FFC}
 ```
 
 > Flag **case-sensitive**. Tidak ada spasi/karakter tambahan saat submit.
@@ -36,68 +41,61 @@ TechtonicExpoCTF{-6.9025107.6054_66394FFC}
 
 ## 2. Analisis Awal
 
-Panitia memberikan sekumpulan arsip digital yang merekam aktivitas terakhir korban bernama Dimas sebelum hilang di Kota Bandung.
+Panitia lomba fotografi menerima kiriman karya dengan metadata terenkripsi dari seseorang yang menggunakan nama samaran pensil_hitam. Kita diberikan sekumpulan file arsip investigasi yang terdiri dari surel, petunjuk kunci arsip dalam bentuk Base64, sebuah file sketsa gambar, serta arsip terenkripsi yang menyimpan identitas asli.
 
-- **Yang dikasih:** Arsip file teks (catatan.txt, config.json, obrolan.txt) dan file gambar (foto_a.jpg, foto_b.png).
-- **Observasi pertama:** File teks memberikan petunjuk naratif mengenai rute perjalanan Dimas (Jl. Setiabudhi, Dago, kawasan gedung tua bekas bank Belanda di Asia Afrika). File gambar
-- **Hipotesis awal:** Metadata foto menyimpan pesan rahasia yang memuat koordinat atau instruksi spesifik untuk membentuk format flag yang diminta.
+- **Yang dikasih:** email.txt, kunci_arsip.txt, sketsa_awal.png, surat.txt, dan arsip.zip.
+- **Observasi pertama:** surat.txt menyebutkan nama samaran penulis (pensil_hitam) dan meminta pemeriksaan metadata atau surel cadangan. kunci_arsip.txt menyimpan string terenkripsi Base64 yang mengarah ke password file arsip.
+- **Hipotesis awal:** Kita harus mendekode password arsip terlebih dahulu untuk membuka arsip.zip, di mana file di dalamnya (identitas_asli.txt dan catatan_panitia.txt) akan menyingkap identitas asli sang penulis.
 
 ```bash
-cat catatan.txt
-cat config.json
-cat obrolan.txt
+cat email.txt
+cat surat.txt
+cat kunci_arsip.txt
 ```
 
 ![recon]
-<img width="1886" height="934" alt="image" src="https://github.com/user-attachments/assets/9ea5de33-a8af-44d6-b1b9-9ce33344d8e9" />
-
+<img width="2940" height="886" alt="image" src="https://github.com/user-attachments/assets/0807fe87-98b7-4e9a-8464-56c63570bbc7" />
 
 ---
 
 ## 3. Langkah Penyelesaian
+Membaca isi berkas teks secara berurutan untuk merangkum petunjuk dan membuka kunci arsip.
 
-Membaca isi teks untuk merangkum kronologi dan target lokasi pencarian Dimas.
-
-### 3.1 <Recon / enumerasi>
+### 3.1 <Rekonstruksi Petunjuk & Dekode Kunci Arsip>
 
 ```bash
-cat catatan.txt
-cat config.json
-cat obrolan.txt
+cat kunci_arsip.txt
 ```
 
-Hasil: <catatan.txt: Dimas berangkat dari Jl. Setiabudhi, mampir ke Dago, menuju gedung tua di kawasan Bandung, terakhir online pukul 21.47 WIB.>
-<config.json: Riwayat pencarian peta mencakup kata kunci gedung tua, bank belanda, asia afrika, dan patung.>
-<obrolan.txt: Pukul 21.40 Dimas mengonfirmasi sudah sampai di gedung yang besar dan di depannya ada patung.>
+Hasil dekode menghasilkan string: tugu_jogja
+<img width="966" height="388" alt="image" src="https://github.com/user-attachments/assets/1ae47183-eeda-4060-aadf-d0b68ad82f5a" />
 
-### 3.2 <Menemukan celah / titik lemah>
-Memeriksa metadata EXIF pada kedua file foto untuk mencari petunjuk tersembunyi.
+### 3.2 <Ekstraksi Arsip Terenkripsi>
+Menggunakan password tugu_jogja untuk membuka arsip.zip:
 ```bash
-exiftool foto_a.jpg
-exiftool foto_b.png
+unzip -P tugu_jogja arsip.zip
 ```
 
 Hasil: 
-<foto_a.jpg memiliki bagian Comment berisi string Base64: UG5ldiB0cnhqYXQgZ2huIHF2IHdueW5hIE5mdm4gTnNldnhuIHFyeG5nIGNuZ2hhdA==>
-
-<foto_b.png memiliki bagian Comment berisi string Base64: ZGVsdGE6IC02LjkwMjUgMTA3LjYwNTQK yang mendekode langsung menjadi koordinat delta.>
-![alt text](image-2.png)
+Di dalam arsip terdapat file identitas_asli.txt dan catatan_panitia.txt.
+<img width="2172" height="682" alt="image" src="https://github.com/user-attachments/assets/32ca8c8c-56d9-491e-94bb-800430092b0b" />
 
 
 
-### 3.3 <Eksploitasi / dekripsi / ekstraksi>
-Melakukan dekode Base64 serta enkripsi sandi geser (ROT13) pada string metadata.
+
+### 3.3 <Membaca Identitas Asli Penulis>
+Melihat isi dari file identitas_asli.txt:
 ```bash
-echo "ZGVsdGE6IC02LjkwMjUgMTA3LjYwNTQK" | base64 -d
-echo "UG5ldiB0cnFoYXQgZ2huIHF2IHdueW5hIE5mdm4gTnNldnhuIHFyeG5nIGNuZ2hhdA==" | base64 -d
-echo "Pnev trqhat ghn qv wnyna Nfvn Nsevxn qrxng cnghat" | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+cat identitas_asli.txt
 ```
-Koordinat desimal yang ditemukan dari delta metadata adalah -6.9025 dan 107.6054. Menggabungkannya tanpa spasi sesuai format contoh soal menghasilkan -6.9025107.6054, yang kemudian dibungkus ke dalam format wrapper flag kompetisi.
+Sesuai dengan ketentuan format kunci soal (nama lengkap asli penulis dalam format huruf kecil tanpa spasi dengan pemisah garis bawah, contoh: budi_santoso), maka nama Bagas Wicaksono diubah menjadi:
+bagas_wicaksono
 
-Flag : TechtonicExpoCTF{-6.9025107.6054_66394FFC}
+Flag : TechtonicExpoCTF{bagas_wicaksono_66394FFC}
 
-![exploit]
-![alt text](image-3.png)
+
+<img width="818" height="230" alt="image" src="https://github.com/user-attachments/assets/fdd94f72-50c8-4db5-b090-4f7531448e1a" />
+
 
 ---
 
@@ -105,9 +103,9 @@ Flag : TechtonicExpoCTF{-6.9025107.6054_66394FFC}
 
 | Tool | Versi | Dipakai untuk |
 | :--- | :--- | :--- |
-| ExifTool | 13.36 | Mengekstrak metadata tersembunyi pada file gambar (foto_a.jpg dan foto_b.png) |
-| Base64 Decoder | Built-in | Menerjemahkan string Comment metadata foto |
-| ROT13 Decoder | Built-in | Membaca sandi geser teks petunjuk lokasi |
+| cat / Built-in CLI | Bash | Membaca isi file teks penunjang (email.txt, surat.txt, kunci_arsip.txt) |
+| Base64 Decoder | Built-in | Mendekode string Base64 pada file kunci_arsip.txt menjadi password |
+| Unzip | 6.0 | Mengekstrak berkas arsip.zip menggunakan password hasil dekode |
 =
 
 ---
@@ -118,9 +116,9 @@ Jujur catat yang dicoba tapi mentok, plus alasan gagalnya.
 
 | # | Yang dicoba | Hasil | Kenapa gagal |
 | :-- | :--- | :--- | :--- |
-| 1 | Mencari koordinat manual via Google Maps tanpa membaca metadata> | Gagal | Titik lokasi terlalu luas karena kawasan Asia Afrika memiliki banyak gedung kolonial bersejarah. |
-| 2 | Hanya mendekode Base64 foto_a.jpg tanpa ROT13 | Gagal | Hasil dekode masih berupa ciphertext acak yang belum bisa dibaca sebagai instruksi lokasi. |
-| 3 | Menggabungkan koordinat dengan spasi atau format titik dua | **Berhasil** | Gagal pada percobaan awal sebelum membaca instruksi format soal yang meminta format desimal tanpa spasi (contoh: -6.1234107.45678). |
+| 1 | Langsung membuka arsip.zip tanpa password | Gagal | Arsip terenkripsi dan membutuhkan sandi otorisasi. |
+| 2 | Menganalisis metadata gambar sketsa_awal.png secara mendalam mencari koordinat/teks | tidak relevan | Meskipun surat menyebutkan metadata, petunjuk utama akses dokumen identitas justru tersimpan secara langsung pada string Base64 di kunci_arsip.txt. |
+| 3 | menemukan identitas asli | **Berhasil** | berhasil menemukan identitas asli dan benar |
 
 ---
 
