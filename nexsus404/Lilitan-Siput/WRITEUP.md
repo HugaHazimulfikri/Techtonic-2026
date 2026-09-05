@@ -183,6 +183,15 @@ Satu hal lagi yang hampir bikin saya salah: chi-square per coset kalau cuma diam
 ternyata rapuh. Coset 11 huruf terlalu pendek, peringkat teratas belum tentu benar. Harus top-4 lalu diadu
 kombinasinya.
 
+Keempat tebakan kunci dan konvensi transposisi yang salah bisa direproduksi dengan
+[`gagal.py`](gagal.py):
+
+```bash
+python3 gagal.py
+```
+
+![percobaan yang gagal](img/05-gagal.png)
+
 ## Yang saya ambil dari soal ini
 
 Sandi berlapis harus dibongkar dari lapis terluar. Kalau urutannya dibalik, soalnya terasa mustahil padahal

@@ -186,7 +186,7 @@ bisa dipakai tanpa `m`.
 
 Kelihatan seperti jawaban. Tidak ada error, tidak ada tanda apa pun kalau itu salah. Ternyata itu
 `m × 3208199587805960899`, jadi kelipatan `m`, bukan `m`. Yang membongkarnya cuma dua hal: panjang
-bitnya 127 bit padahal generatornya jelas 64-bit, dan verifikasi ke seluruh deret di langkah
+bitnya 126 bit padahal generatornya jelas 64-bit, dan verifikasi ke seluruh deret di langkah
 sebelum menebak.
 
 Setelah saya ulang dengan 5 keluaran (2 nilai `u`), GCD-nya langsung tepat `18446744073709551557`.
@@ -200,6 +200,14 @@ Ringkasnya:
 | 4 (1 nilai u) | kelipatan m, salah |
 | 5 (2 nilai u) | tepat m |
 | 8 (5 nilai u) | tepat m, paling aman |
+
+Dua kegagalan ini bisa direproduksi dengan [`gagal.py`](gagal.py):
+
+```bash
+python3 gagal.py
+```
+
+![percobaan yang gagal](img/05-gagal.png)
 
 ## Yang saya ambil dari soal ini
 

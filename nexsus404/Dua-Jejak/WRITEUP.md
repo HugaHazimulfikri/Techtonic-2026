@@ -197,6 +197,15 @@ Unpack LSB dengan `bitorder="little"` juga gagal, keluar biner acak `\x0e\xa6\xb
 Dan yang paling menggoda: berhenti di base64 `jejak_b` sebagai jawaban. Itu tetap dapat poin, tapi tanpa
 tahu kenapa, dan tanpa cara membedakannya dari decoy.
 
+Ketiga kegagalan itu, termasuk pembanding PNG satu warna yang membantah dugaan saya sendiri,
+bisa direproduksi dengan [`gagal.py`](gagal.py):
+
+```bash
+python3 gagal.py
+```
+
+![percobaan yang gagal](img/05-gagal.png)
+
 ## Yang saya ambil dari soal ini
 
 Yang bikin soal ini menarik: penyembunyiannya **asimetris**. Dua berkas yang kelihatan kembar memakai

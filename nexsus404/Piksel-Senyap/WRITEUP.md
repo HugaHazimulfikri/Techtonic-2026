@@ -170,6 +170,15 @@ dulu sebelum unpack, tiga percobaan gagal itu tidak perlu terjadi.
 Satu lagi yang berbahaya tapi tidak sempat menjebak saya: `kunci_salah_arah_2026` di R0. Kalau saya berhenti
 di situ dan submit, salah. Namanya juga "salah arah".
 
+Ketiga percobaan unpack yang gagal dan jebakan LSB merahnya bisa direproduksi dengan
+[`gagal.py`](gagal.py):
+
+```bash
+python3 gagal.py
+```
+
+![percobaan yang gagal](img/05-gagal.png)
+
 ## Yang saya ambil dari soal ini
 
 Yang menarik, noise acak itu justru menguntungkan buat yang menganalisis. Karena tiap bit-plane noise murni
