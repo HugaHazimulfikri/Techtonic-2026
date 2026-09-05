@@ -38,9 +38,9 @@ TechtonicExpoCTF{-6.9025107.6054_66394FFC}
 
 Panitia memberikan sekumpulan arsip digital yang merekam aktivitas terakhir korban bernama Dimas sebelum hilang di Kota Bandung.
 
-- **Yang dikasih:** <Arsip file teks (catatan.txt, config.json, obrolan.txt) dan file gambar (foto_a.jpg, foto_b.png).>
-- **Observasi pertama:** <File teks memberikan petunjuk naratif mengenai rute perjalanan Dimas (Jl. Setiabudhi, Dago, kawasan gedung tua bekas bank Belanda di Asia Afrika). File gambar>
-- **Hipotesis awal:** <Metadata foto menyimpan pesan rahasia yang memuat koordinat atau instruksi spesifik untuk membentuk format flag yang diminta.>
+- **Yang dikasih:** Arsip file teks (catatan.txt, config.json, obrolan.txt) dan file gambar (foto_a.jpg, foto_b.png).
+- **Observasi pertama:** File teks memberikan petunjuk naratif mengenai rute perjalanan Dimas (Jl. Setiabudhi, Dago, kawasan gedung tua bekas bank Belanda di Asia Afrika). File gambar
+- **Hipotesis awal:** Metadata foto menyimpan pesan rahasia yang memuat koordinat atau instruksi spesifik untuk membentuk format flag yang diminta.
 
 ```bash
 cat catatan.txt
@@ -105,9 +105,9 @@ Flag : TechtonicExpoCTF{-6.9025107.6054_66394FFC}
 
 | Tool | Versi | Dipakai untuk |
 | :--- | :--- | :--- |
-| ExifTool | <13.36> | <Mengekstrak metadata tersembunyi pada file gambar (foto_a.jpg dan foto_b.png)> |
-| <Base64 Decoder> | <Built-in> | <Menerjemahkan string Comment metadata foto> |
-| <ROT13 Decoder> | <Built-in> | <Membaca sandi geser teks petunjuk lokasi> |
+| ExifTool | 13.36 | Mengekstrak metadata tersembunyi pada file gambar (foto_a.jpg dan foto_b.png) |
+| Base64 Decoder | Built-in | Menerjemahkan string Comment metadata foto |
+| ROT13 Decoder | Built-in | Membaca sandi geser teks petunjuk lokasi |
 =
 
 ---
@@ -118,9 +118,9 @@ Jujur catat yang dicoba tapi mentok, plus alasan gagalnya.
 
 | # | Yang dicoba | Hasil | Kenapa gagal |
 | :-- | :--- | :--- | :--- |
-| 1 | <Mencari koordinat manual via Google Maps tanpa membaca metadata> | Gagal | <Titik lokasi terlalu luas karena kawasan Asia Afrika memiliki banyak gedung kolonial bersejarah.> |
-| 2 | <Hanya mendekode Base64 foto_a.jpg tanpa ROT13> | Gagal | <Hasil dekode masih berupa ciphertext acak yang belum bisa dibaca sebagai instruksi lokasi.> |
-| 3 | <Menggabungkan koordinat dengan spasi atau format titik dua> | **Berhasil** | <Gagal pada percobaan awal sebelum membaca instruksi format soal yang meminta format desimal tanpa spasi (contoh: -6.1234107.45678).> |
+| 1 | Mencari koordinat manual via Google Maps tanpa membaca metadata> | Gagal | Titik lokasi terlalu luas karena kawasan Asia Afrika memiliki banyak gedung kolonial bersejarah. |
+| 2 | Hanya mendekode Base64 foto_a.jpg tanpa ROT13 | Gagal | Hasil dekode masih berupa ciphertext acak yang belum bisa dibaca sebagai instruksi lokasi. |
+| 3 | Menggabungkan koordinat dengan spasi atau format titik dua | **Berhasil** | Gagal pada percobaan awal sebelum membaca instruksi format soal yang meminta format desimal tanpa spasi (contoh: -6.1234107.45678). |
 
 ---
 
