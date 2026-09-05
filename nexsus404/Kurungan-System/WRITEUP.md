@@ -33,12 +33,17 @@ TechtonicExpoCTF{boleh_read_66394FFC}
 
 ```bash
 file kurungan.bin
-checksec file kurungan.bin
+pwn checksec kurungan.bin
 ```
 
 ```
 ELF 64-bit LSB pie executable, x86-64, dynamically linked, stripped
-Full RELRO | No Canary Found | NX enabled | PIE Enabled | No Symbols
+
+    Arch:       amd64-64-little
+    RELRO:      Full RELRO
+    Stack:      No canary found
+    NX:         NX enabled
+    PIE:        PIE enabled
 ```
 
 NX aktif dan PIE aktif, tapi **tidak ada stack canary**. Kombinasi ini sudah mengarahkan ke
@@ -192,9 +197,23 @@ mov eax, 1             /* write */
 syscall
 ```
 
-Bypass terbukti jalan karena **errno asli** mulai kembali dari server: `ENOENT` (2) untuk path yang
-tidak ada, `EACCES` (13) untuk yang tidak boleh diakses. Kalau seccomp memblokir, prosesnya akan
-mati (`KILL_THREAD`), bukan mengembalikan errno.
+Bypass terbukti jalan karena **errno asli** mulai kembali dari server. Kalau seccomp memblokir
+operasinya, proses akan dibunuh (`KILL_THREAD`) — bukan mengembalikan errno:
+
+```bash
+python3 solve.py /flag.txt        # file yang tidak ada
+python3 solve.py /etc/hostname    # file yang pasti ada
+```
+
+```
+[4] openat(/flag.txt) -> gagal, errno 2 = ENOENT (tidak ada)
+    (errno asli kembali = bypass io_uring JALAN)
+
+[4] openat(/etc/hostname) -> fd 4, isi = 'c4dabb831acc'
+```
+
+`ENOENT` untuk yang tidak ada dan pembacaan sukses untuk yang ada — dua-duanya membuktikan
+`IORING_OP_OPENAT` benar-benar dieksekusi kernel tanpa tersentuh filter.
 
 ![bypass jalan](img/03-bypass.png)
 

