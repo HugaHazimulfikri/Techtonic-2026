@@ -201,12 +201,6 @@ Ringkasnya:
 | 5 (2 nilai u) | tepat m |
 | 8 (5 nilai u) | tepat m, paling aman |
 
-Dua kegagalan ini bisa direproduksi dengan [`gagal.py`](gagal.py):
-
-```bash
-python3 gagal.py
-```
-
 ## Yang saya ambil dari soal ini
 
 Yang bikin serangan ini jalan bukan trik tunggal, tapi urutan mengupasnya: selisih menghilangkan `c`,

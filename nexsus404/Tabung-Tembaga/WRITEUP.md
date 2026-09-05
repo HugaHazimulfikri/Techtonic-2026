@@ -180,13 +180,6 @@ Fungsi itu tidak error, ia mengembalikan angka yang kelihatan wajar. Yang membon
 Asumsi bahwa `c1` hasil reduksi mod `n`: salah, dibantah oleh `c1.bit_length() = 333 < 340`. Kalau saya
 teruskan, waktu habis mengejar akar kubik modular yang tidak pernah ada.
 
-Kedua kegagalan itu bisa direproduksi dengan [`gagal.py`](gagal.py). Perhatikan akar versi float
-mulai meleset di digit ke-14:
-
-```bash
-python3 gagal.py
-```
-
 ## Yang saya ambil dari soal ini
 
 Pelajaran utamanya: ukur dulu, baru pilih senjata. Deskripsi soal mengarahkan ke Franklin-Reiter dan itu

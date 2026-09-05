@@ -278,13 +278,6 @@ ENOTDIR, yang membuktikan file itu ada.
 Yang akhirnya berhasil: membaca `/proc/1/cmdline` → `/start34.sh` → `/nsjail_kurungan.cfg`, lalu sapuan
 wordlist 308 path (14 direktori × 22 nama) yang menemukan `/srv/rahasia.txt`.
 
-Sebagian besar kegagalan itu bisa direproduksi dengan [`gagal.py`](gagal.py), yang memakai
-`solve.py` sebagai pembaca file arbitrer. Termasuk oracle `ENOTDIR` yang membantah salah baca saya:
-
-```bash
-python3 gagal.py
-```
-
 ## Yang saya ambil dari soal ini
 
 Intinya satu: **io_uring adalah pintu belakang seccomp**. Seccomp menyaring syscall, sedangkan io_uring

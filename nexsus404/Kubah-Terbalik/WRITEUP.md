@@ -194,13 +194,6 @@ string `"tidak sah"`. Pesan servernya ternyata `Tanda tidak cocok`. Akibatnya sc
 `slen=1` padahal body responsnya `[403] DITOLAK`. False positive murni karena saya menegasikan pola gagal,
 bukan mencocokkan pola sukses. Setelah klasifikasinya dibetulkan, panjang rahasia 16 langsung ketemu.
 
-Ketiga kegagalan itu bisa direproduksi dengan [`gagal.py`](gagal.py), termasuk bukti bahwa pesan
-servernya memang `Tanda tidak cocok` dan bukan `tidak sah` seperti yang dicari filter saya:
-
-```bash
-python3 gagal.py
-```
-
 ## Yang saya ambil dari soal ini
 
 Dua serangan di soal ini sama-sama menyerang **integritas**, bukan kerahasiaan. Saya tidak pernah memecahkan
