@@ -57,6 +57,36 @@ Yang membuat ini bisa dikerjakan adalah **urutan pemulihannya**. `a` dan `c` tid
 selama `m` belum diketahui, karena keduanya hidup di aritmetika mod `m`. Jadi `m` harus jatuh lebih
 dulu — dan `m` justru satu-satunya yang bisa dicari tanpa mengetahui dua lainnya.
 
+### Latar belakang: kenapa LCG bocor total
+
+LCG adalah pembangkit bilangan acak semu tertua dan tercepat yang masih dipakai luas — `rand()` di
+glibc, `java.util.Random`, dan generator bawaan MSVC semuanya varian LCG. Satu perkalian, satu
+penjumlahan, satu modulo. Murah sekali, dan untuk keperluan non-keamanan (simulasi, game, sampling)
+memang cukup.
+
+Kelemahan fatalnya terletak pada satu hal: **keluaran LCG *adalah* state internalnya.**
+
+```
+CSPRNG   : state --[fungsi satu arah]--> keluaran      keluaran TIDAK mengungkap state
+LCG      : state ==== keluaran ====                    keluaran ADALAH state
+```
+
+Pada generator kriptografis, nilai yang dikeluarkan adalah hasil hash/enkripsi dari state, jadi
+melihat keluaran tidak memberi tahu apa pun tentang state. Pada LCG, angka yang kamu terima persis
+sama dengan isi state saat itu. Begitu satu keluaran terlihat, seluruh masa depan generator sudah
+tertentu — tinggal soal apakah `a`, `c`, `m` diketahui.
+
+Menyembunyikan ketiga parameter terasa seperti pengamanan, tapi tidak. Relasi rekursifnya linear,
+dan aljabar linear modular bisa dibalik selama sampelnya cukup. Yang dibeli oleh "parameter rahasia"
+hanyalah **beberapa keluaran tambahan** yang harus dilihat penyerang — bukan keamanan.
+
+| Varian | Sulitnya dipecahkan |
+| :--- | :--- |
+| LCG, parameter diketahui | 1 keluaran → seluruh deret |
+| **LCG, parameter rahasia (soal ini)** | **~5 keluaran → seluruh deret** |
+| LCG terpotong (hanya bit atas yang dikeluarkan) | butuh reduksi kisi (LLL), tetap bisa |
+| CSPRNG (ChaCha20, AES-CTR, /dev/urandom) | tidak bisa, itu memang tujuannya |
+
 ![recon](img/02-recon.png)
 
 ---
@@ -65,24 +95,51 @@ dulu — dan `m` justru satu-satunya yang bisa dicari tanpa mengetahui dua lainn
 
 ### 3.1 Pulihkan `m` lewat GCD determinan selisih
 
-Trik intinya: ambil **selisih** antar keluaran berurutan untuk melenyapkan `c`.
+Serangannya dibangun dengan **melenyapkan yang tidak diketahui satu per satu**, dimulai dari yang
+paling mudah dihilangkan.
+
+**Langkah A — buang `c` dengan selisih.**
+
+Definisikan selisih antar keluaran berurutan:
 
 ```
 t[i] = x[i+1] − x[i]
 ```
 
-Karena `x[i+1] = a·x[i] + c` dan `x[i+2] = a·x[i+1] + c`, penambah `c` saling hapus saat dikurangkan:
+Substitusikan relasi LCG-nya. Karena `x[i+1] = a·x[i] + c` dan `x[i+2] = a·x[i+1] + c`:
 
 ```
-t[i+1] = x[i+2] − x[i+1] = a·(x[i+1] − x[i]) = a · t[i]   (mod m)
+t[i+1] = x[i+2] − x[i+1]
+       = (a·x[i+1] + c) − (a·x[i] + c)        <- c muncul di dua suku
+       = a·x[i+1] − a·x[i]                     <- dan saling menghapus
+       = a·(x[i+1] − x[i])
+       = a · t[i]                              (mod m)
 ```
 
-Sekarang deret `t` adalah barisan geometrik ber-rasio `a` mod `m`. Untuk melenyapkan `a` juga,
-susun determinan 2×2 — hasilnya nol mod `m`, artinya **kelipatan `m`**:
+Penambah `c` lenyap sepenuhnya. Yang tersisa: deret `t` adalah **barisan geometrik** dengan rasio
+`a` (mod `m`).
+
+**Langkah B — buang `a` dengan determinan.**
+
+Pada barisan geometrik, tiga suku berurutan selalu memenuhi `t[i+1]² = t[i+2]·t[i]`. Selisih kedua
+sisi karena itu pasti nol:
 
 ```
-u[i] = t[i+2]·t[i] − t[i+1]²  ≡  a²·t[i]² − (a·t[i])²  ≡  0   (mod m)
+u[i] = t[i+2]·t[i] − t[i+1]²
+     = (a²·t[i])·t[i] − (a·t[i])²             <- t[i+2] = a·t[i+1] = a²·t[i]
+     = a²·t[i]² − a²·t[i]²
+     = 0                                       (mod m)
 ```
+
+Ini kunci seluruh serangan. `u[i] ≡ 0 (mod m)` berarti **`m` membagi habis `u[i]`** — jadi tiap
+`u[i]` adalah kelipatan `m` yang bisa dihitung tanpa mengetahui `a`, `c`, maupun `m` itu sendiri.
+Nilainya dihitung sebagai bilangan bulat biasa, tanpa modulo sama sekali.
+
+**Langkah C — peras `m` keluar dengan GCD.**
+
+Tiap `u[i]` berbentuk `m × k[i]` untuk suatu kofaktor acak `k[i]`. Mengambil GCD beberapa `u[i]`
+memberi `m × gcd(k[0], k[1], …)`, dan karena kofaktor-kofaktor itu praktis acak, GCD mereka hampir
+selalu 1 — menyisakan `m` bersih.
 
 Beberapa `u[i]` yang berbeda hampir pasti hanya berbagi faktor `m` saja, jadi:
 
@@ -240,6 +297,59 @@ verifikasi di langkah 3.3. Ini alasan konkret kenapa harus pakai sebanyak mungki
   bilangan 127-bit untuk generator yang jelas-jelas 64-bit; ketidakcocokan ukuran itu sinyal
   paling awal bahwa jawabannya salah.
 
+---
+
+## 7. Mitigasi — Bagaimana Seharusnya Ditulis
+
+Kerentanan di soal ini bukan bug implementasi, melainkan **salah pilih primitif**. Perbaikannya
+bukan menambal LCG, melainkan menggantinya.
+
+**Salah — LCG untuk apa pun yang bersifat keamanan:**
+
+```python
+import random
+token = random.randint(0, 2**64)        # random.Random = Mersenne Twister, sama bocornya
+sesi   = f"{random.getrandbits(64):x}"  # 624 keluaran -> seluruh state MT terpulihkan
+```
+
+**Benar — pakai CSPRNG:**
+
+```python
+import secrets
+token = secrets.token_hex(32)           # ambil dari /dev/urandom
+sesi  = secrets.token_urlsafe(32)
+nonce = secrets.randbits(96)
+```
+
+| Kebutuhan | Jangan pakai | Pakai |
+| :--- | :--- | :--- |
+| Token sesi, reset password | `random`, LCG, `rand()` | `secrets` (Python), `crypto.randomBytes` (Node) |
+| Nonce / IV kriptografis | apa pun yang deterministik | `os.urandom`, `getrandom(2)` |
+| Simulasi, game, sampling | — | `random` boleh, memang untuk itu |
+
+Menyembunyikan `a`, `c`, `m` **bukan mitigasi** — soal ini membuktikan biayanya cuma beberapa
+keluaran tambahan. Memotong keluaran (hanya mengeluarkan bit atas) juga bukan solusi: itu hanya
+menaikkan serangan dari GCD sederhana ke reduksi kisi LLL, yang tetap rutin dilakukan.
+
+Prinsipnya satu kalimat: **kalau keluaran generator bisa dipetakan balik ke state-nya, generator itu
+tidak boleh dipakai untuk keamanan.**
+
+---
+
+## 8. Referensi
+
+- Donald E. Knuth, *The Art of Computer Programming, Vol. 2: Seminumerical Algorithms*, §3.2.1 —
+  definisi dan teori LCG, termasuk syarat periode penuh (teorema Hull–Dobell).
+- Joan Boyar, *Inferring Sequences Produced by Pseudo-Random Number Generators*, J. ACM 36(1), 1989 —
+  makalah rujukan untuk memulihkan parameter LCG dari keluaran.
+- **CWE-338**: *Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)* —
+  klasifikasi formal kerentanan ini.
+- **CWE-330**: *Use of Insufficiently Random Values*.
+- Dokumentasi Python, modul [`secrets`](https://docs.python.org/3/library/secrets.html) — "should be
+  used in preference to the default pseudo-random number generator in the `random` module".
+- Konstanta MMIX (`a = 6364136223846793005`, `c = 1442695040888963407`) berasal dari Knuth, TAOCP
+  Vol. 2, tabel LCG 64-bit.
+
 <!--
 CHECKLIST ISI MINIMAL (slide "Format dan Isi Write-up")
   [x] 1. Judul dan kategori challenge     -> tabel info + metadata
@@ -249,4 +359,6 @@ CHECKLIST ISI MINIMAL (slide "Format dan Isi Write-up")
   [x] 5. Tools atau script                -> bagian 4 + solve.py
   [x] 6. Trial-and-error / langkah gagal  -> bagian 5 (5 poin, 3 gagal, semua diuji nyata)
   [x] 7. Insight utama / teknik unik      -> bagian 6
+  (+) Mitigasi                            -> bagian 7
+  (+) Referensi                           -> bagian 8
 -->
