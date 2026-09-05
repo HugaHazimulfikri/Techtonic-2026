@@ -32,7 +32,7 @@ TechtonicExpoCTF{balik_ulur_panjang_66394FFC}
 
 Dirakit dari dua potongan: lapis satu memberi `balik`, lapis dua memberi `ulur_panjang`.
 
-![flag diterima](img/06-flag.png)
+![flag diterima](img/05-flag.png)
 
 ---
 
