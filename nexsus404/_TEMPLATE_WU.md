@@ -20,7 +20,7 @@
 ## 1. Flag
 
 ```
-TechtonicExpoCTF{isi_flag_KODETIM}
+TechtonicExpoCTF{isi_flag_66394FFC}
 ```
 
 > Flag **case-sensitive**. Tidak ada spasi/karakter tambahan saat submit.
