@@ -1,139 +1,143 @@
 # Techtonic-2026
 
-Repo kerja tim CTF. Tiap anggota nge-push writeup soal yang di-solve ke **folder masing-masing**,
-lalu digabung otomatis jadi satu `WRITEUP.md` pakai [`build_writeup.py`](build_writeup.py).
+Repo kerja tim CTF **DOSCOM**. Tiap anggota menaruh writeup soal yang di-solve ke **folder
+masing-masing**, lalu semuanya digabung otomatis jadi satu `WRITEUP.md` oleh
+[`build_writeup.py`](build_writeup.py).
 
-## 📁 Struktur folder
+Folder anggota: `nexsus404/`, `sanzxcte/`, `x0r/`.
+
+---
+
+## 1. Struktur folder
 
 ```
-<anggota>/<challenge>/<file .md>      <- writeup (wajib, 1 per folder soal)
-<anggota>/<challenge>/<gambar>        <- screenshot (opsional)
-<anggota>/<challenge>/<solver, soal>  <- opsional
+<anggota>/<nama-soal>/<file .md>     writeup   (WAJIB: 1 file .md per folder soal)
+<anggota>/<nama-soal>/<gambar>       screenshot (opsional)
+<anggota>/<nama-soal>/<solver, dsb>  file lain  (opsional)
 ```
 
-Folder anggota: `sanzxcte/`, `nexsus404/`, `x0r/`.
+Contoh:
 
-**Nama file writeup bebas** — nggak harus `WRITEUP.md`. Boleh `writeup.md`, `README.md`, atau
-`.md` apa pun (mis. `bmn.md`, `catatan.md`). Kalau ada beberapa `.md`, yang dipakai `WRITEUP.md`/
-`README.md` dulu, kalau nggak ada baru `.md` pertama (urut abjad).
+```
+nexsus404/BMN/WRITEUP.md
+nexsus404/BMN/img/01-soal.png
+sanzxcte/Ecliprime/solve.md
+sanzxcte/Ecliprime/output.png
+```
 
-**Gambar bebas ditaruh di mana aja** asal path-nya **relatif ke folder soal**. Semua path relatif
-otomatis dibetulin saat digabung. Contoh yang semua valid:
+Aturan yang wajib cuma dua:
+
+1. **1 soal = 1 folder**, tepat 2 tingkat: `anggota/nama-soal/`. Jangan dinesting lebih dalam.
+2. **1 file writeup `.md` per folder soal.** Nama bebas (`WRITEUP.md`, `writeup.md`, `bmn.md`, dst).
+   Kalau ada beberapa `.md`, yang dipakai `WRITEUP.md`/`README.md` dulu, kalau tidak ada baru `.md`
+   pertama (urut abjad).
+
+**Gambar bebas** ditaruh di mana saja asal path-nya relatif ke folder soal. Semua otomatis
+dibetulkan saat digabung:
 
 ```markdown
-![x](img/01.png)        -> di subfolder img/
-![x](01-soal.png)       -> langsung di folder soal
-![x](ss/recon.png)      -> subfolder lain
-![x](https://...)       -> URL (github dll) dibiarkan apa adanya
+![x](img/01.png)     di subfolder img/
+![x](01-soal.png)    langsung di folder soal
+![x](ss/recon.png)   subfolder lain
+![x](https://...)    URL (github dll) dibiarkan apa adanya
 ```
 
-Contoh struktur:
-
-```
-nexsus404/BMN/WRITEUP.md      +  nexsus404/BMN/img/01-soal.png
-sanzxcte/Ecliprime/solve.md   +  sanzxcte/Ecliprime/output.png
-```
-
-### Metadata opsional
-
-Baris paling atas `WRITEUP.md` boleh diisi metadata biar tabel daftar isi rapi:
+**Metadata opsional** di baris paling atas file writeup, biar tabel Daftar Isi rapi (kalau tidak
+diisi, kategori/poin jadi `-`, judul diambil dari heading pertama atau nama folder):
 
 ```
 <!-- category: web | points: 498 -->
 # BMN
-...
+...isi writeup...
 ```
 
-Kalau nggak diisi pun aman: kategori/poin diisi `-`, judul diambil dari heading pertama.
+---
 
-## ⚡ Alur pas lomba
+## 2. Alur pas lomba
 
-**Tiap anggota** (setelah solve): taruh writeup di folder kamu, lalu simpan pakai **satu perintah**:
+### Anggota (tiap orang)
+
+Taruh writeup di folder kamu, lalu simpan. Cara paling gampang, satu perintah:
 
 ```bash
-mkdir -p nexsus404/NamaSoal/img     # ganti nexsus404 dgn folder kamu; taruh writeup + gambar
-./simpan.sh nexsus404/NamaSoal "NamaSoal solved"
+./simpan.sh nexsus404/NamaSoal "namasoal solved"
 ```
 
-`simpan.sh` otomatis `git add` -> `commit` -> `git pull --rebase` -> `git push` (retry kalau
-origin barusan berubah), jadi **nggak perlu ngetik perintah git manual** dan nggak kena "fetch
-first". Kalau mau simpan semua perubahan sekaligus: `./simpan.sh` (tanpa argumen).
+`simpan.sh` otomatis `git add` -> `commit` -> `git pull --rebase` -> `git push` (dengan retry),
+jadi tidak perlu ngetik perintah git manual dan tidak kena error "fetch first". Argumen boleh
+dikosongkan: `./simpan.sh` saja artinya simpan semua perubahan.
 
-<details><summary>Cara manual (kalau nggak mau pakai simpan.sh)</summary>
+Kalau mau manual:
 
 ```bash
 git add nexsus404/NamaSoal
-git commit -m "add NamaSoal"
+git commit -m "namasoal"
 git pull --rebase && git push
 ```
-</details>
 
-**Gabung jadi satu** (siapa aja):
+### Perakit (cukup 1 orang)
 
-```bash
-python3 build_writeup.py --pull --push
-```
-
-Itu bakal: `git pull` -> scan semua folder anggota -> rakit `WRITEUP.md` (daftar isi + semua
-soal, path gambar dibetulin otomatis) -> `git commit` + `git push`.
-
-## 😴 Cara paling enak (biar nggak nabrak)
-
-Idenya: **cuma 1 orang jadi "perakit"** yang ngerakit `WRITEUP.md` otomatis TAPI **nggak push**.
-Karena perakit nggak push, `origin` nggak pernah dapat commit `WRITEUP.md` -> **anggota lain
-aman push seperti biasa, nggak kena "fetch first"**.
-
-**Perakit** (1 orang) — jalanin sekali, biarin nongkrong:
+Jalankan sekali, biarkan nongkrong. Dia auto-rakit `WRITEUP.md` gabungan **di lokal, tanpa push**:
 
 ```bash
 python3 build_writeup.py --watch
 ```
-Tiap ada anggota push writeup baru, dia otomatis `git pull` -> rakit ulang `WRITEUP.md`
-**di lokal** (nggak di-push). Perakit selalu punya `WRITEUP.md` gabungan versi terbaru di
-komputernya. Ganti interval: `--watch --interval 10`. Ctrl+C untuk berhenti.
 
-**Anggota lain** — push writeup masing-masing seperti biasa (nggak jalanin tool apa pun):
+Tiap ada anggota push writeup baru, dia otomatis `git pull` + rakit ulang `WRITEUP.md` di komputer
+perakit. Karena perakit **tidak push**, `origin` tidak pernah dapat commit `WRITEUP.md` dari
+perakit, jadi **anggota lain aman push seperti biasa tanpa tabrakan**. Ctrl+C untuk berhenti.
 
-```bash
-git add namafolder/NamaSoal
-git commit -m "NamaSoal"
-git push
-# atau singkat: ./simpan.sh namafolder/NamaSoal
-```
+### Publish `WRITEUP.md` final
 
-**Publish `WRITEUP.md` final** — di AKHIR lomba, perakit push sekali:
+Di akhir lomba, perakit publish sekali:
 
 ```bash
 python3 build_writeup.py --push
 ```
 
-> `WRITEUP.md` sengaja di-`.gitignore` biar nggak kepush nggak sengaja selama lomba. Perakit
-> pegang versi lokalnya; baru di-publish pas `--push` di akhir.
+> `WRITEUP.md` sengaja masuk `.gitignore` (yang di ROOT saja) biar tidak kepush tidak sengaja
+> selama lomba. Baru muncul di GitHub saat `--push`.
 
-## 🛠️ Opsi tool
+---
+
+## 3. Opsi tool
 
 ```bash
-python3 build_writeup.py                 # rakit folder saat ini -> WRITEUP.md
+python3 build_writeup.py                 # rakit sekali -> WRITEUP.md (lokal)
 python3 build_writeup.py --pull          # git pull dulu, baru rakit
-python3 build_writeup.py --push          # rakit lalu commit + push
+python3 build_writeup.py --push          # rakit lalu commit + push (publish)
+python3 build_writeup.py --watch         # nongkrong, auto rakit lokal tiap ada push baru
+python3 build_writeup.py --watch --push  # nongkrong + auto publish tiap update
+python3 build_writeup.py --watch --interval 10   # ganti interval cek (detik)
 python3 build_writeup.py -o GABUNGAN.md  # nama output lain
 python3 build_writeup.py --members sanzxcte nexsus404 x0r   # atur urutan anggota
 
 # clone dari nol lalu rakit sekali jalan:
-python3 build_writeup.py --repo https://github.com/HugaHazimulfikri/Techtonic-2026.git --into techtonic
+python3 build_writeup.py --repo https://github.com/HugaHazimulfikri/Techtonic-2026.git --into tech
 ```
 
 Cuma butuh **Python 3** (tanpa dependensi luar) + **git**.
 
-## 🎨 Template & tampilan
+---
 
-Header dokumen hasil gabungan (judul + banner + tabel Team) diambil dari
+## 4. Template tampilan
+
+Header dokumen gabungan (judul + banner + tabel Team) diambil dari
 [`_template/header.md`](_template/header.md). Edit file itu tiap event:
 
 - ganti judul `# Writeup Techtonic-2026`
-- ganti banner `_template/banner.png` dengan banner event
-- isi skor tiap anggota setelah lomba selesai
+- ganti banner `_template/banner.png` dengan banner event ini
+- isi skor tiap anggota
 
 Di bawah header, tool otomatis menambahkan **Daftar Isi Challenge** + semua writeup, dengan
-page-break (`<div>`) di antara bagian biar rapi kalau di-export ke PDF (pakai `--no-pagebreak`
-untuk mematikannya).
+pemisah page-break (buat rapi kalau di-export PDF). Matikan dengan `--no-pagebreak`.
+
+---
+
+## Ringkas
+
+| Peran | Perintah |
+| :---- | :------- |
+| Anggota simpan writeup | `./simpan.sh <folder-soal> "pesan"` |
+| Perakit gabung otomatis | `python3 build_writeup.py --watch` |
+| Publish final | `python3 build_writeup.py --push` |
