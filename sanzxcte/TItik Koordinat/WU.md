@@ -20,7 +20,7 @@ Tugas kamu sebagai analis:
 Kunci adalah koordinat lokasi dalam format desimal tanpa spasi, contoh: -6.1234107.45678
 
 ![soal]
-![alt text](image.png)
+<img width="2002" height="1620" alt="image" src="https://github.com/user-attachments/assets/54ad3dec-3c67-4838-aa17-64d88c5f6c70" />
 
 ---
 
