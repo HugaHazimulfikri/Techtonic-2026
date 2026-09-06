@@ -43,7 +43,7 @@ Kenapa hipotesis itu langsung kuat: RSA bersifat *homomorphic* terhadap perkalia
 
 Perintah recon paling awal:
 
-```bash
+```
 UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"
 curl -s -A "$UA" http://168.110.219.59:5017/
 ```
@@ -60,13 +60,13 @@ Hasil: halaman parameter, `n` = 511 bit, `e` = 65537, `c < n`.
 
 `params.py`:
 
-```python
+```
 n = 6682764709973167036946049701211903120437113287577349111212467596058858742508078964195459986429833628450564838432660462469348985968359623292925433644729943
 e = 65537
 c = 5812302952503080065017368916479880836704948815091623009626511897423953357353715014657215167264460510609979240699551562949522354078288213435296810308965727
 ```
 
-```bash
+```
 python3 -c "from params import n,e,c; print(n.bit_length(), c.bit_length(), c<n)"
 ```
 
@@ -76,7 +76,7 @@ Hasil: `511 511 True`. Modulus 511 bit → butuh **511 query** untuk mempersempi
 
 Saya tidak mau membakar 511 query di atas asumsi yang salah, jadi saya uji oracle dengan dua plaintext yang sudah saya tahu jawabannya. `c = 1` mendekripsi jadi `m = 1` (ganjil), dan `c = 2^e mod n` mendekripsi jadi `m = 2` (genap).
 
-```bash
+```
 curl -s -A "$UA" "http://168.110.219.59:5017/bisik?c=1"
 curl -s -A "$UA" "http://168.110.219.59:5017/bisik?c=$(python3 -c 'from params import n,e; print(pow(2,e,n))')"
 ```
@@ -92,7 +92,7 @@ Invariannya: pertahankan interval `[lo, hi)` yang pasti memuat `m`. Di iterasi k
 - jawaban **genap** → tidak ada reduksi mod → `m` ada di paruh **bawah** → `hi = tengah`
 - jawaban **ganjil** → terjadi reduksi mod → `m` ada di paruh **atas** → `lo = tengah`
 
-```bash
+```
 python3 solve.py
 ```
 
@@ -115,7 +115,7 @@ Saya tidak berhenti di "hasilnya kelihatan seperti teks". Solver mengenkripsi ul
 
 "Pangkal pesan menyimpan kata sandi gudang" — plaintextnya pendek, jadi seluruh pesan itu sendiri kata sandinya.
 
-```bash
+```
 curl -s -A "$UA" "http://168.110.219.59:5017/gudang?kata=kunci_gudang" \
   | sed -e 's|</p>|</p>\n|g' -e 's/<[^>]*>//g' | grep -v '^\s*$'
 ```
@@ -146,7 +146,7 @@ menghasilkan flag utuh tanpa perlu `curl` manual (lihat gambar di bagian 1).
 
 `params.py`:
 
-```python
+```
 # Jerat Peladen - Techtonic Expo Vol.3 2026 (Cryptography)
 # Service: http://168.110.219.59:5017/
 n = 6682764709973167036946049701211903120437113287577349111212467596058858742508078964195459986429833628450564838432660462469348985968359623292925433644729943
@@ -156,7 +156,7 @@ c = 5812302952503080065017368916479880836704948815091623009626511897423953357353
 
 `solve.py`:
 
-```python
+```
 #!/usr/bin/env python3
 """Jerat Peladen - RSA LSB (parity) oracle attack."""
 import re, sys, time
@@ -234,7 +234,7 @@ print(f"[+] FLAG = TechtonicExpoCTF{{{kunci}_66394FFC}}")
 
 `uji_pembulatan.py`:
 
-```python
+```
 #!/usr/bin/env python3
 """Simulasi lokal: bandingkan binary search versi integer // vs Fraction.
 Pakai kunci RSA buatan sendiri supaya oracle bisa dijalankan offline."""
@@ -286,7 +286,7 @@ print(f"versi Fraction    : {gagal_frac}/20 gagal")
 
 Poin #2 tidak saya tebak — saya ukur. Karena oracle asli tidak bisa dipakai bereksperimen bebas (tiap tes = 511 request ke server panitia), saya bangkitkan kunci RSA 512-bit sendiri, jalankan oracle paritas secara lokal, lalu adu kedua versi pada 20 kunci acak:
 
-```bash
+```
 python3 uji_pembulatan.py
 ```
 

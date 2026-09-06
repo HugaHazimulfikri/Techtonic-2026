@@ -43,7 +43,7 @@ kanan.bin  49 b8 fa 48 b0 d0 38 cd 51 3e
 
 Panjang keduanya identik (10 byte) juga penunjuk kuat: XOR berpasangan menuntut panjang yang sama persis.
 
-```bash
+```
 ls -l kiri.bin kanan.bin ; xxd kiri.bin ; xxd kanan.bin
 ```
 
@@ -55,7 +55,7 @@ ls -l kiri.bin kanan.bin ; xxd kiri.bin ; xxd kanan.bin
 
 ### 3.1 XOR posisi-per-posisi
 
-```bash
+```
 python3 -c "
 a=open('kiri.bin','rb').read(); b=open('kanan.bin','rb').read()
 x=bytes(i^j for i,j in zip(a,b))
@@ -79,7 +79,7 @@ Langsung terbaca, tanpa perlu perlakuan apa pun. Verifikasinya ada pada hasilnya
 
 Kata `gabung_xor` bukan sekadar pesan — ia password `identitas_utuh.zip` yang ikut dilampirkan:
 
-```bash
+```
 unzip -o -P gabung_xor identitas_utuh.zip -d /tmp/cek_xor
 cat /tmp/cek_xor/catatan.txt
 ```
@@ -100,7 +100,7 @@ Hasil: arsip terbuka berisi `catatan.txt`, `boarding.txt`, `boarding2.txt`, dan 
 
 `solve.py`:
 
-```python
+```
 #!/usr/bin/env python3
 """Dua yang Satu - gabungkan dua berkas dengan XOR untuk memulihkan pesan.
 

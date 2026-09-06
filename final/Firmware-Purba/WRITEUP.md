@@ -37,7 +37,7 @@ TechtonicExpoCTF{chip_tua_66394FFC}
 
 Yang menjebak di sini: berkas acak berukuran 1 MB otomatis melahirkan ribuan rentetan ASCII kebetulan. `strings` biasa akan menenggelamkan jawabannya, bukan menemukannya.
 
-```bash
+```
 ls -l firmware_purba.bin ; file firmware_purba.bin ; du -b firmware_purba.bin
 ```
 
@@ -51,7 +51,7 @@ ls -l firmware_purba.bin ; file firmware_purba.bin ; du -b firmware_purba.bin
 
 Sebelum cari cara pintar, saya ukur seberapa parah noise-nya:
 
-```bash
+```
 strings -n 6 firmware_purba.bin | wc -l
 python3 -c "import re; print(len(re.findall(rb'[ -~]{6,}', open('firmware_purba.bin','rb').read())))"
 ```
@@ -64,7 +64,7 @@ Hasil: **1.814** baris dari `strings`, **1.714** rentetan dari regex printable. 
 
 Deskripsi bilang "pola berulang", jadi saya uji arti paling lurus: adakah potongan byte yang muncul dua kali?
 
-```python
+```
 W=16; seen={}; rep={}
 for i in range(len(d)-W+1):
     w=d[i:i+W]
@@ -79,7 +79,7 @@ Hasil: **0**. Tidak ada satu pun. Jadi "pola berulang" bukan pengulangan byte ha
 
 Kalau ada teks ditanam di tengah lautan data acak, blok itu pasti sedikit lebih teratur. Saya hitung entropi Shannon per blok 256-byte untuk seluruh 4.096 blok:
 
-```bash
+```
 python3 -c "
 import math, collections
 d=open('firmware_purba.bin','rb').read(); B=256; s=[]
@@ -111,7 +111,7 @@ Perlu jujur soal kekuatan sinyal ini: rata-rata seluruh berkas **7.176**, tertin
 
 Alih-alih semua karakter printable, saya batasi ke pola yang khas teks manusia — huruf kecil, spasi, underscore, minimal 7 karakter. Peluang 7 byte acak berturut-turut jatuh ke 28 nilai dari 256 sangat kecil, jadi filter ini memangkas noise nyaris total:
 
-```bash
+```
 python3 -c "
 import re
 d=open('firmware_purba.bin','rb').read()
@@ -133,7 +133,7 @@ String kedua itulah konfirmasinya: *"blok cadangan tidak pernah dipetakan"* menj
 
 ### 3.5 Hexdump untuk memastikan
 
-```bash
+```
 python3 -c "
 d=open('firmware_purba.bin','rb').read()
 for i in range(0,160,16):
@@ -168,7 +168,7 @@ Terlihat jelas: `chip_tua` di `0x80000`, pesan penanda di `0x80080`, sisanya kem
 
 `solve.py`:
 
-```python
+```
 #!/usr/bin/env python3
 """Firmware Purba - temukan kunci yang ditanam di dalam 1 MB data acak.
 

