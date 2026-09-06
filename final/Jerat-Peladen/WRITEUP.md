@@ -127,6 +127,9 @@ Gudang Terbuka// JERAT PELADEN// KUNCI AKHIR
 Gudang terbuka. Bendera di tanganmu: jerat_lsb_berlapis
 ```
 
+Langkah ini kemudian saya masukkan ke dalam `solve.py`, jadi satu kali jalan sudah
+menghasilkan flag utuh tanpa perlu `curl` manual (lihat gambar di bagian 1).
+
 ![exploit](img/04-exploit.png)
 
 ---
@@ -222,6 +225,17 @@ data = m.to_bytes((m.bit_length() + 7) // 8, "big")
 print("[+] m (hex) =", hex(m))
 print("[+] plaintext =", repr(data))
 open("pesan.bin", "wb").write(data)
+
+# Plaintext-nya adalah kata sandi gudang; tukarkan ke bendera akhir.
+kata = data.decode()
+req = urllib.request.Request(f"{BASE}/gudang?kata={kata}", headers={"User-Agent": UA})
+halaman = urllib.request.urlopen(req, timeout=20).read().decode()
+bendera = re.search(r"Bendera di tanganmu:\s*<code>([^<]+)</code>", halaman)
+if not bendera:
+    bendera = re.search(r"Bendera di tanganmu:\s*([\w_]+)", halaman)
+kunci = bendera.group(1).strip()
+print(f"[+] /gudang?kata={kata} -> kunci akhir = {kunci}")
+print(f"[+] FLAG = TechtonicExpoCTF{{{kunci}_66394FFC}}")
 ```
 
 ### `uji_pembulatan.py`
