@@ -1,11 +1,11 @@
-<!-- category: crypto | points: - -->
+<!-- category: crypto | points: 766 -->
 # Jerat Peladen
 
 | | |
 | :--- | :--- |
 | **Challenge** | Jerat Peladen |
-| **Kategori** | crypto |
-| **Poin** | - |
+| **Kategori** | Cryptography · Final |
+| **Poin** | 766 |
 | **Author** | - |
 | **Connection** | http://168.110.219.59:5017/ |
 | **Solver** | nexsus404 |
@@ -29,7 +29,7 @@ TechtonicExpoCTF{jerat_lsb_berlapis_66394FFC}
 
 > Flag **case-sensitive**. Tidak ada spasi/karakter tambahan saat submit.
 
-![flag diterima](img/05-flag.png)
+![flag diterima](img/06-flag.png)
 
 ---
 
@@ -50,7 +50,9 @@ curl -s -A "$UA" http://168.110.219.59:5017/
 
 Hasil: halaman parameter, `n` = 511 bit, `e` = 65537, `c < n`.
 
-![recon](img/02-recon.png)
+![service](img/02-service.png)
+
+![recon](img/03-recon.png)
 
 ---
 
@@ -83,7 +85,7 @@ curl -s -A "$UA" "http://168.110.219.59:5017/bisik?c=$(python3 -c 'from params i
 
 Hasil: `ganjil` lalu `genap`. Oracle jujur dan arah interpretasinya benar.
 
-![temuan](img/03-analisis.png)
+![temuan](img/04-analisis.png)
 
 ### 3.3 Binary search 511 bit
 
@@ -130,7 +132,7 @@ Gudang terbuka. Bendera di tanganmu: jerat_lsb_berlapis
 Langkah ini kemudian saya masukkan ke dalam `solve.py`, jadi satu kali jalan sudah
 menghasilkan flag utuh tanpa perlu `curl` manual (lihat gambar di bagian 1).
 
-![exploit](img/04-exploit.png)
+![exploit](img/05-gudang.png)
 
 ---
 

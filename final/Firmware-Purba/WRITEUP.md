@@ -1,11 +1,11 @@
-<!-- category: forensic | points: - -->
+<!-- category: forensic | points: 766 -->
 # Firmware Purba
 
 | | |
 | :--- | :--- |
 | **Challenge** | Firmware Purba |
-| **Kategori** | forensic |
-| **Poin** | - |
+| **Kategori** | Digital Forensics · Final |
+| **Poin** | 766 |
 | **Author** | - |
 | **Connection** | file attachment: `firmware_purba.bin` |
 | **Solver** | nexsus404 |
@@ -13,7 +13,7 @@
 
 > Firmware menyimpan kunci pada offset yang tidak pernah dibaca. Cari pola berulang di tengah berkas.
 
-![soal](img/01-recon.png)
+![soal](img/01-soal.png)
 
 ---
 
@@ -25,7 +25,7 @@ TechtonicExpoCTF{chip_tua_66394FFC}
 
 > Flag **case-sensitive**. Tidak ada spasi/karakter tambahan saat submit.
 
-![flag](img/06-flag.png)
+![flag](img/07-flag.png)
 
 ---
 
@@ -41,7 +41,7 @@ Yang menjebak di sini: berkas acak berukuran 1 MB otomatis melahirkan ribuan ren
 ls -l firmware_purba.bin ; file firmware_purba.bin ; du -b firmware_purba.bin
 ```
 
-![recon](img/01-recon.png)
+![recon](img/02-recon.png)
 
 ---
 
@@ -58,7 +58,7 @@ python3 -c "import re; print(len(re.findall(rb'[ -~]{6,}', open('firmware_purba.
 
 Hasil: **1.814** baris dari `strings`, **1.714** rentetan dari regex printable. Semuanya sampah acak seperti `'<0xB\x'` dan `' =)PqX'`. Menyaring ini dengan mata mustahil.
 
-![noise](img/03-noise.png)
+![noise](img/04-noise.png)
 
 ### 3.2 Cek dulu apakah "pola berulang" itu harfiah
 
@@ -105,7 +105,7 @@ Hasil:
 
 Perlu jujur soal kekuatan sinyal ini: rata-rata seluruh berkas **7.176**, tertinggi 7.367, dan peringkat kedua 6.971 — jadi selisih juara satu dengan sisanya tipis. Entropi di sini **mengarahkan**, bukan membuktikan. Yang membuktikan langkah berikutnya.
 
-![entropi](img/02-entropi.png)
+![entropi](img/03-entropi.png)
 
 ### 3.4 Filter teks sungguhan
 
@@ -127,7 +127,7 @@ Hasil — dari 1.714 kandidat menyusut jadi **dua**, dan keduanya di titik yang 
 0x008007f  'yblok cadangan tidak pernah dipetakan'
 ```
 
-![temuan](img/04-temuan.png)
+![temuan](img/05-temuan.png)
 
 String kedua itulah konfirmasinya: *"blok cadangan tidak pernah dipetakan"* menjawab persis kalimat soal *"offset yang tidak pernah dibaca"*. Jadi `chip_tua` bukan kebetulan ASCII di data acak — ia ditanam bersama penanda maknanya. (Huruf `y` di depan string kedua cuma byte acak yang kebetulan menempel.)
 
@@ -153,7 +153,7 @@ for i in range(0,160,16):
 
 Terlihat jelas: `chip_tua` di `0x80000`, pesan penanda di `0x80080`, sisanya kembali acak.
 
-![hexdump](img/05-hexdump.png)
+![hexdump](img/06-hexdump.png)
 
 ---
 

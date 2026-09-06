@@ -1,11 +1,11 @@
-<!-- category: reverse | points: - -->
+<!-- category: reverse | points: 766 -->
 # Dua yang Satu
 
 | | |
 | :--- | :--- |
 | **Challenge** | Dua yang Satu |
-| **Kategori** | reverse |
-| **Poin** | - |
+| **Kategori** | Reverse Engineering · Final |
+| **Poin** | 766 |
 | **Author** | - |
 | **Connection** | file attachment: `kiri.bin`, `kanan.bin` |
 | **Solver** | nexsus404 |
@@ -13,7 +13,7 @@
 
 > Dua berkas yang di-urutkan ulang. Gabungkan dengan operasi bitwise untuk membaca pesan.
 
-![soal](img/01-recon.png)
+![soal](img/01-soal.png)
 
 ---
 
@@ -25,7 +25,7 @@ TechtonicExpoCTF{gabung_xor_66394FFC}
 
 > Flag **case-sensitive**. Tidak ada spasi/karakter tambahan saat submit.
 
-![flag](img/04-flag.png)
+![flag](img/05-flag.png)
 
 ---
 
@@ -47,7 +47,7 @@ Panjang keduanya identik (10 byte) juga penunjuk kuat: XOR berpasangan menuntut 
 ls -l kiri.bin kanan.bin ; xxd kiri.bin ; xxd kanan.bin
 ```
 
-![recon](img/01-recon.png)
+![recon](img/02-recon.png)
 
 ---
 
@@ -73,7 +73,7 @@ ASCII printable semua? True
 
 Langsung terbaca, tanpa perlu perlakuan apa pun. Verifikasinya ada pada hasilnya sendiri: **10 dari 10 byte** jatuh di rentang ASCII printable dan membentuk kata Indonesia yang bermakna. XOR dua blob acak praktis mustahil menghasilkan itu secara kebetulan — peluang 10 byte acak semuanya printable saja sekitar 1 banding 30.000, apalagi tersusun jadi kata yang persis mendeskripsikan tekniknya sendiri.
 
-![analisis](img/02-analisis.png)
+![analisis](img/03-analisis.png)
 
 ### 3.2 Pesannya ternyata juga kunci arsip
 
@@ -86,7 +86,7 @@ cat /tmp/cek_xor/catatan.txt
 
 Hasil: arsip terbuka berisi `catatan.txt`, `boarding.txt`, `boarding2.txt`, dan `tugu_pensil.jpg` — bahan untuk soal OSINT lanjutan. Ini mengonfirmasi ulang bahwa `gabung_xor` memang string yang dimaksud, bukan artefak kebetulan: server/arsip menerimanya sebagai password yang sah.
 
-![zip](img/03-zip.png)
+![zip](img/04-zip.png)
 
 ---
 
