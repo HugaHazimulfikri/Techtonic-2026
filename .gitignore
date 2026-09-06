@@ -11,5 +11,7 @@ final/*
 final/*/*
 !final/*/WRITEUP.md
 !final/*/img/
-# belum solved - dikerjakan anggota lain
-final/Identitas-Utuh/
+# Identitas-Utuh belum solved, digarap anggota lain. Folder sudah disiapkan
+# lewat .gitkeep dan mengikuti aturan yang sama: cukup taruh WRITEUP.md +
+# img/, lalu push. Tidak perlu mengubah berkas ini.
+!final/*/.gitkeep
