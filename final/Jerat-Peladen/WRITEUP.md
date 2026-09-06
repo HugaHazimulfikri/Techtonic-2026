@@ -144,11 +144,7 @@ menghasilkan flag utuh tanpa perlu `curl` manual (lihat gambar di bagian 1).
 | curl | - | recon awal + buka `/gudang` |
 | sympy | 1.14.0 | bangkitkan kunci RSA lokal untuk uji pembulatan |
 
-Seluruh kode yang dipakai ditulis lengkap di bawah ini — bukan potongan. Salin ke berkas dengan nama yang tertera lalu jalankan; tidak ada dependensi tersembunyi selain yang tercantum di tabel di atas.
-
-### `params.py`
-
-> parameter soal, dipisah supaya bisa langsung di-import solver
+`params.py`:
 
 ```python
 # Jerat Peladen - Techtonic Expo Vol.3 2026 (Cryptography)
@@ -158,9 +154,7 @@ e = 65537
 c = 5812302952503080065017368916479880836704948815091623009626511897423953357353715014657215167264460510609979240699551562949522354078288213435296810308965727
 ```
 
-### `solve.py`
-
-> solver utama
+`solve.py`:
 
 ```python
 #!/usr/bin/env python3
@@ -238,9 +232,7 @@ print(f"[+] /gudang?kata={kata} -> kunci akhir = {kunci}")
 print(f"[+] FLAG = TechtonicExpoCTF{{{kunci}_66394FFC}}")
 ```
 
-### `uji_pembulatan.py`
-
-> uji lokal Fraction vs integer // (lihat bagian 5)
+`uji_pembulatan.py`:
 
 ```python
 #!/usr/bin/env python3

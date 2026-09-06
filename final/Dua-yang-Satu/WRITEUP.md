@@ -98,11 +98,7 @@ Hasil: arsip terbuka berisi `catatan.txt`, `boarding.txt`, `boarding2.txt`, dan 
 | xxd / file / ls | coreutils | recon awal, lihat byte mentah |
 | unzip | 6.x | verifikasi pesan sebagai password arsip |
 
-Seluruh kode yang dipakai ditulis lengkap di bawah ini — bukan potongan. Salin ke berkas dengan nama yang tertera lalu jalankan; tidak ada dependensi tersembunyi selain yang tercantum di tabel di atas.
-
-### `solve.py`
-
-> solver utama
+`solve.py`:
 
 ```python
 #!/usr/bin/env python3

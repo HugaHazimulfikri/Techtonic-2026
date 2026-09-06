@@ -166,11 +166,7 @@ Terlihat jelas: `chip_tua` di `0x80000`, pesan penanda di `0x80080`, sisanya kem
 | binwalk | 3.x | cek struktur/berkas tertanam (hasil: nihil) |
 | strings, file, du | coreutils/binutils | recon awal + ukur noise |
 
-Seluruh kode yang dipakai ditulis lengkap di bawah ini — bukan potongan. Salin ke berkas dengan nama yang tertera lalu jalankan; tidak ada dependensi tersembunyi selain yang tercantum di tabel di atas.
-
-### `solve.py`
-
-> solver utama
+`solve.py`:
 
 ```python
 #!/usr/bin/env python3
