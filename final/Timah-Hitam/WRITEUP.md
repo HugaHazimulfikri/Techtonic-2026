@@ -167,7 +167,7 @@ Solver memasang dua assert sebagai jaring pengaman sebelum menembak payload: can
 
 Catatan tooling: SOP workspace meminta MCP `ghidra_*` untuk task RE, tapi server itu tidak tersedia di sesi ini. Ghidra headless juga dicoba dan gagal (lihat bagian 5), jadi analisis dikerjakan dengan r2 + objdump.
 
-Seluruh kode di bawah ini disalin langsung dari berkas yang ada di folder soal ini, jadi bisa dijalankan apa adanya.
+Seluruh kode yang dipakai ditulis lengkap di bawah ini — bukan potongan. Salin ke berkas dengan nama yang tertera lalu jalankan; tidak ada dependensi tersembunyi selain yang tercantum di tabel di atas.
 
 ### `solve.py`
 

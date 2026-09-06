@@ -141,7 +141,7 @@ Gudang terbuka. Bendera di tanganmu: jerat_lsb_berlapis
 | curl | - | recon awal + buka `/gudang` |
 | sympy | 1.14.0 | bangkitkan kunci RSA lokal untuk uji pembulatan |
 
-Seluruh kode di bawah ini disalin langsung dari berkas yang ada di folder soal ini, jadi bisa dijalankan apa adanya.
+Seluruh kode yang dipakai ditulis lengkap di bawah ini — bukan potongan. Salin ke berkas dengan nama yang tertera lalu jalankan; tidak ada dependensi tersembunyi selain yang tercantum di tabel di atas.
 
 ### `params.py`
 
