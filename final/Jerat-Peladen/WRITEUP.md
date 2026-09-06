@@ -141,7 +141,23 @@ Gudang terbuka. Bendera di tanganmu: jerat_lsb_berlapis
 | curl | - | recon awal + buka `/gudang` |
 | sympy | 1.14.0 | bangkitkan kunci RSA lokal untuk uji pembulatan |
 
-Solver lengkap (`solve.py`):
+Seluruh kode di bawah ini disalin langsung dari berkas yang ada di folder soal ini, jadi bisa dijalankan apa adanya.
+
+### `params.py`
+
+> parameter soal, dipisah supaya bisa langsung di-import solver
+
+```python
+# Jerat Peladen - Techtonic Expo Vol.3 2026 (Cryptography)
+# Service: http://168.110.219.59:5017/
+n = 6682764709973167036946049701211903120437113287577349111212467596058858742508078964195459986429833628450564838432660462469348985968359623292925433644729943
+e = 65537
+c = 5812302952503080065017368916479880836704948815091623009626511897423953357353715014657215167264460510609979240699551562949522354078288213435296810308965727
+```
+
+### `solve.py`
+
+> solver utama
 
 ```python
 #!/usr/bin/env python3
@@ -206,6 +222,211 @@ data = m.to_bytes((m.bit_length() + 7) // 8, "big")
 print("[+] m (hex) =", hex(m))
 print("[+] plaintext =", repr(data))
 open("pesan.bin", "wb").write(data)
+```
+
+### `uji_pembulatan.py`
+
+> uji lokal Fraction vs integer // (lihat bagian 5)
+
+```python
+#!/usr/bin/env python3
+"""Simulasi lokal: bandingkan binary search versi integer // vs Fraction.
+Pakai kunci RSA buatan sendiri supaya oracle bisa dijalankan offline."""
+from fractions import Fraction
+import random, sympy
+
+random.seed(1337)
+gagal_int = gagal_frac = 0
+for percobaan in range(20):
+    p, q = sympy.randprime(2**255, 2**256), sympy.randprime(2**255, 2**256)
+    N, E = p*q, 65537
+    d = pow(E, -1, (p-1)*(q-1))
+    m0 = int.from_bytes(b"kunci_gudang", "big")
+    c0 = pow(m0, E, N)
+    orc = lambda ct: pow(ct, d, N) & 1     # oracle paritas lokal
+    dua = pow(2, E, N)
+
+    # versi A: integer floor division
+    lo, hi, ct = 0, N, c0
+    for _ in range(N.bit_length()):
+        ct = ct * dua % N
+        mid = (lo + hi) // 2
+        if orc(ct): lo = mid
+        else:       hi = mid
+    if pow(hi, E, N) != c0: gagal_int += 1
+
+    # versi B: Fraction (eksak)
+    lo, hi, ct = Fraction(0), Fraction(N), c0
+    for _ in range(N.bit_length()):
+        ct = ct * dua % N
+        mid = (lo + hi) / 2
+        if orc(ct): lo = mid
+        else:       hi = mid
+    if pow(int(hi), E, N) != c0: gagal_frac += 1
+
+print(f"versi integer //  : {gagal_int}/20 gagal")
+print(f"versi Fraction    : {gagal_frac}/20 gagal")
+```
+
+### `screenshot.py`
+
+> render screenshot tiap langkah dari keluaran perintah sungguhan
+
+```python
+#!/usr/bin/env python3
+"""Screenshot langkah penyelesaian Jerat Peladen (RSA LSB oracle).
+
+Halaman web dipotret LANGSUNG dari server 168.110.219.59:5017.
+Keluaran terminal adalah stdout sungguhan saat script ini dijalankan.
+CATATAN: langkah 4 menjalankan solve.py = 511 request ke server panitia.
+"""
+import sys, os
+_d = os.path.dirname(os.path.abspath(__file__))          # cari _shot.py ke atas
+while _d != "/" and not os.path.exists(os.path.join(_d, "_shot.py")):
+    _d = os.path.dirname(_d)
+sys.path.insert(0, _d)
+from _shot import terminal, web, jalankan
+
+F, B = "Jerat-Peladen", "http://168.110.219.59:5017"
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+print("Jerat Peladen:")
+web(F, "01-soal", B + "/")
+
+terminal(F, "02-recon", "LANGKAH 1 - Recon: ukuran modulus", [
+    ("cat params.py", jalankan("cat params.py")),
+    ("python3 -c \"from params import n,e,c; print('n bits =',n.bit_length()); print('c < n  =',c<n)\"",
+     jalankan("python3 -c \"from params import n,e,c; print('n bits =',n.bit_length()); print('c < n  =',c<n)\"")),
+])
+
+kal = ("UA='%s'\n" % UA +
+       "curl -s -A \"$UA\" \"%s/bisik?c=1\"                       # m=1 -> harus ganjil\n" % B +
+       "curl -s -A \"$UA\" \"%s/bisik?c=$(python3 -c 'from params import n,e; print(pow(2,e,n))')\"  # m=2 -> harus genap" % B)
+terminal(F, "03-analisis", "LANGKAH 2 - Kalibrasi oracle dengan plaintext yang sudah diketahui", [
+    (kal, jalankan(f"""UA='{UA}'
+echo -n 'c=1      -> '; curl -s -A "$UA" "{B}/bisik?c=1" | grep -oP '(?<=abu">)\\w+'
+echo -n 'c=2^e    -> '; curl -s -A "$UA" "{B}/bisik?c=$(python3 -c 'from params import n,e; print(pow(2,e,n))')" | grep -oP '(?<=abu">)\\w+'""")),
+], sorot=("ganjil", "genap"))
+
+terminal(F, "04-exploit", "LANGKAH 3 - Binary search 511 bit lewat oracle paritas", [
+    ("python3 solve.py", jalankan("python3 solve.py", timeout=400)),
+], sorot=("VERIFIED", "penuh", "kunci_gudang"))
+
+web(F, "05-flag", B + "/gudang?kata=kunci_gudang", "1100,600")
+print("Selesai.")
+```
+
+### `_shot.py`
+
+> helper render bersama, ada di root repo
+
+```python
+#!/usr/bin/env python3
+"""
+Helper screenshot bersama untuk writeup nexsus404.
+
+Dua mode, keduanya merekam hal yang SUNGGUHAN terjadi - tidak ada teks yang
+diketik ulang atau tampilan yang direka:
+
+  terminal(...)  menjalankan perintahnya, menangkap stdout/stderr apa adanya,
+                 lalu menggambar keluaran itu ke PNG bergaya terminal (Pillow).
+  web(...)       memotret halaman langsung dari server target pakai Chromium
+                 headless.
+  web_html(...)  memotret BODY RESPONSE ASLI dari server (mis. hasil POST yang
+                 tidak bisa dilakukan Chromium lewat URL). HTML-nya utuh dari
+                 server, cuma disisipi <base> supaya CSS-nya tetap termuat.
+"""
+import os, subprocess, tempfile, textwrap
+from PIL import Image, ImageDraw, ImageFont
+
+FONT = "/usr/share/fonts/TTF/JetBrainsMono-Regular.ttf"
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"
+BG, FG, PROMPT, CMD, JUDUL = "#0d1117", "#c9d1d9", "#3fb950", "#d29922", "#58a6ff"
+UK, PAD, SPASI = 15, 22, 6
+
+
+def jalankan(perintah, timeout=300):
+    """Jalankan perintah sungguhan; kembalikan stdout+stderr apa adanya."""
+    h = subprocess.run(perintah, shell=True, capture_output=True, text=True, timeout=timeout)
+    return (h.stdout + h.stderr).rstrip("\n")
+
+
+def terminal(folder, nama, judul, blok, sorot=(), lebar_maks=132):
+    """blok = [(perintah, keluaran)]. sorot = kata yang diwarnai merah."""
+    f = ImageFont.truetype(FONT, UK)
+    fb = ImageFont.truetype(FONT, UK + 3)
+    baris = [(judul, JUDUL, fb), ("", FG, f)]
+    for perintah, keluaran in blok:
+        for i, p in enumerate(textwrap.wrap(perintah, lebar_maks) or [""]):
+            baris.append((("$ " if i == 0 else "  ") + p, CMD, f))
+        for k in keluaran.split("\n"):
+            for w in (textwrap.wrap(k, lebar_maks) or [""]):
+                baris.append((w, "#f85149" if any(s in w for s in sorot) else FG, f))
+        baris.append(("", FG, f))
+
+    th = UK + SPASI
+    lebar = max(int(ft.getlength(t)) for t, _, ft in baris) + PAD * 2
+    img = Image.new("RGB", (max(lebar, 720), len(baris) * th + PAD * 2), BG)
+    d = ImageDraw.Draw(img)
+    for i, (t, w, ft) in enumerate(baris):
+        x = PAD
+        if t.startswith("$ "):
+            d.text((x, PAD + i * th), "$", font=ft, fill=PROMPT)
+            x += ft.getlength("$ ")
+            t = t[2:]
+        d.text((x, PAD + i * th), t, font=ft, fill=w)
+    return _simpan(img, folder, nama)
+
+
+def _chromium(url, keluar, ukuran="1100,900"):
+    subprocess.run(["chromium", "--headless", "--disable-gpu", "--no-sandbox",
+                    "--hide-scrollbars", f"--window-size={ukuran}",
+                    f"--user-agent={UA}", f"--screenshot={keluar}", url],
+                   capture_output=True, timeout=120)
+
+
+def web(folder, nama, url, ukuran="1100,900"):
+    """Potret halaman langsung dari server target."""
+    p = _jalur(folder, nama)
+    _chromium(url, p, ukuran)
+    return _lapor(p)
+
+
+def web_html(folder, nama, html, base, ukuran="1100,700"):
+    """Potret body response ASLI dari server (untuk hasil POST)."""
+    html = html.replace("<head>", f'<head><base href="{base}">', 1)
+    with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False) as t:
+        t.write(html)
+        tmp = t.name
+    p = _jalur(folder, nama)
+    _chromium("file://" + tmp, p, ukuran)
+    os.unlink(tmp)
+    return _lapor(p)
+
+
+def _jalur(folder, nama):
+    """img/ selalu relatif ke direktori kerja script pemanggil (tiap script
+    sudah chdir ke foldernya sendiri), BUKAN ke lokasi _shot.py - supaya
+    folder soal bisa dipindah-pindah tanpa gambar nyasar."""
+    d = os.path.join(os.getcwd(), "img")
+    os.makedirs(d, exist_ok=True)
+    return os.path.join(d, nama + ".png")
+
+
+def _simpan(img, folder, nama):
+    p = _jalur(folder, nama)
+    img.save(p)
+    return _lapor(p)
+
+
+def _lapor(p):
+    if os.path.exists(p):
+        w, h = Image.open(p).size
+        print(f"  tersimpan: {os.path.relpath(p)}  ({w}x{h})")
+    else:
+        print(f"  GAGAL: {p}")
+    return p
 ```
 
 ---
