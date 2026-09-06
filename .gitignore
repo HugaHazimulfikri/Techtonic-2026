@@ -3,3 +3,13 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# folder final/: yang masuk repo HANYA WRITEUP.md + img/
+# (berkas soal mentah, solver, dan folder soal yang belum solved tetap lokal)
+final/*
+!final/*/
+final/*/*
+!final/*/WRITEUP.md
+!final/*/img/
+# belum solved - dikerjakan anggota lain
+final/Identitas-Utuh/
