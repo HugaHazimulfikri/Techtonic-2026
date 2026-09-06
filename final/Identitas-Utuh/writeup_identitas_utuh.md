@@ -26,12 +26,13 @@
 ## 1. Flag
 
 ```
-TechtonicExpoCTF{waliyalhuzanmakassar}
+TechtonicExpoCTF{waliyalhuzanmakassar_66394FFC}
 ```
 
 > Flag **case-sensitive**. Tidak ada spasi/karakter tambahan saat submit.
 
 ---
+<img width="2060" height="1580" alt="image" src="https://github.com/user-attachments/assets/e1e3ed58-d974-4181-801b-9b672112f9cb" />
 
 ## 2. Analisis Awal
 
@@ -49,6 +50,7 @@ cat boarding.txt
 cat boarding2.txt
 cat catatan.txt
 ```
+<img width="1888" height="960" alt="image" src="https://github.com/user-attachments/assets/e2fbfcd2-8e12-45fb-a1ae-ded02df509d7" />
 
 ---
 
@@ -63,6 +65,7 @@ cat boarding.txt
 cat boarding2.txt
 cat catatan.txt
 ```
+<img width="1888" height="960" alt="image" src="https://github.com/user-attachments/assets/53ab9b97-0c1b-4343-bd18-84fa941e421e" />
 
 **Hasil:**
 - `boarding.txt`: Nama **W. HUZAN**, rute **TJQ → CGK**, penerbangan **GA139**, kursi 21A.
@@ -74,8 +77,9 @@ cat catatan.txt
 Memeriksa metadata EXIF pada `tugu_pensil.jpg` untuk mencari identitas asli di balik alias pensil_hitam.
 
 ```bash
-exiftool tugu_pensil.jpg
+exiftool -a -G1 -s -ee tugu_pensil.jpg
 ```
+<img width="2154" height="1042" alt="image" src="https://github.com/user-attachments/assets/ee6540cc-a314-4981-8d90-d16f66d9ef94" />
 
 **Hasil:**
 ```
@@ -93,14 +97,14 @@ Mengingat deskripsi soal meminta penelusuran "seluruh lapisan", dicoba eksploras
 ```bash
 curl http://168.110.219.59:5030/manifest
 ```
+<img width="2940" height="1676" alt="image" src="https://github.com/user-attachments/assets/be0e5e6a-8cdc-4af5-9139-96765f125554" />
 
 Endpoint ini menampilkan daftar berkas arsip (`tugu_pensil.jpg`, `boarding_GA139.txt`, `boarding_GA601.txt`, `rahasia_perjalanan.txt`) dengan catatan bahwa berkas `rahasia_perjalanan.txt` berstatus **akses terbatas** dan petunjuk kredensialnya tersebar di metadata dan isi arsip lain.
 
-Setelah merakit kombinasi dari metadata EXIF dan isi boarding pass, akses ke berkas rahasia berhasil dibuka melalui:
+Setelah merakit kombinasi dari metadata EXIF dan isi boarding pass, akses ke berkas rahasia berhasil dibuka melalui salah satu petunjuk di metadata yaitu 'GA601':
 
-```bash
-curl http://168.110.219.59:5030/berkas/rahasia_perjalanan.txt
-```
+<img width="2940" height="1686" alt="image" src="https://github.com/user-attachments/assets/51d2358e-2458-4ca8-917b-8194a16b89d1" />
+
 
 **Isi `rahasia_perjalanan.txt`:**
 ```
@@ -133,7 +137,7 @@ Waliyal Huzan + Makassar
 
 Flag final:
 ```
-TechtonicExpoCTF{waliyalhuzanmakassar}
+TechtonicExpoCTF{waliyalhuzanmakassar_66394FFC}
 ```
 
 ---
