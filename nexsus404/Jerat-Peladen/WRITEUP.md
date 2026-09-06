@@ -135,11 +135,11 @@ Gudang terbuka. Bendera di tanganmu: jerat_lsb_berlapis
 
 | Tool | Versi | Dipakai untuk |
 | :--- | :--- | :--- |
-| Python | 3.12 | solver LSB oracle |
+| Python | 3.14.6 | solver LSB oracle |
 | `fractions.Fraction` | stdlib | batas binary search eksak (lihat bagian 5) |
 | `urllib.request` | stdlib | 511 query berurutan ke oracle |
 | curl | - | recon awal + buka `/gudang` |
-| sympy | - | bangkitkan kunci RSA lokal untuk uji pembulatan |
+| sympy | 1.14.0 | bangkitkan kunci RSA lokal untuk uji pembulatan |
 
 Solver lengkap (`solve.py`):
 
